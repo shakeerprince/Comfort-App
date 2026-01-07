@@ -7,8 +7,12 @@ import { useGSAP } from '@gsap/react';
 import VibeDashboard from '@/components/VibeDashboard';
 import RoleSelector from '@/components/RoleSelector';
 import PersonalMessages from '@/components/PersonalMessages';
+import DailyLoveLetter from '@/components/DailyLoveLetter';
+import SpecialDatesCountdown from '@/components/SpecialDatesCountdown';
+import ComfortPlaylist from '@/components/ComfortPlaylist';
+import WeatherCare from '@/components/WeatherCare';
 import { useCouple } from '@/context/CoupleContext';
-import { Heart, Sparkles, ArrowRight, Camera, Smile } from 'lucide-react';
+import { Heart, Sparkles, ArrowRight, Camera, Smile, AlertTriangle, Brain, Calendar } from 'lucide-react';
 
 gsap.registerPlugin(useGSAP);
 
@@ -26,10 +30,10 @@ const quickActions = [
     description: 'Alert your partner',
   },
   {
-    href: '/location',
-    label: 'Location',
-    emoji: '📍',
-    description: 'Share live location',
+    href: '/tracker',
+    label: 'Period Tracker',
+    emoji: '📅',
+    description: 'Track & predict cycle',
   },
   {
     href: '/chat',
@@ -39,15 +43,27 @@ const quickActions = [
   },
   {
     href: '/support',
-    label: 'Send a Hug',
-    emoji: '🤗',
-    description: 'Virtual warm embrace',
+    label: 'Quick SOS',
+    emoji: '🆘',
+    description: 'Need help now',
   },
   {
     href: '/memories',
     label: 'Our Memories',
     emoji: '📸',
     description: 'Photo gallery',
+  },
+  {
+    href: '/location',
+    label: 'Location',
+    emoji: '📍',
+    description: 'Share live location',
+  },
+  {
+    href: '/love-quiz',
+    label: 'Love Quiz',
+    emoji: '💕',
+    description: 'Love language test',
   },
 ];
 
@@ -120,9 +136,9 @@ export default function Home() {
   const partnerDisplayName = partnerRole === 'keerthi' ? 'Keerthi' : 'Shaker';
 
   return (
-    <main ref={mainRef} className="flex-1 px-6 py-8">
+    <main ref={mainRef} className="flex-1 px-6 py-8 space-y-6">
       {/* Personalized Greeting */}
-      <section className="section text-center mb-6">
+      <section className="section text-center">
         <div className="inline-flex items-center gap-2 mb-2">
           <span className="text-3xl">{greeting.emoji}</span>
           <h1 className="text-3xl font-bold text-gradient">
@@ -133,14 +149,31 @@ export default function Home() {
         <p className="text-lg opacity-70">Stay connected with {partnerDisplayName}, always</p>
       </section>
 
+      {/* Daily Love Letter - For Keerthi only */}
+      {myRole === 'keerthi' && (
+        <section className="section max-w-md mx-auto">
+          <DailyLoveLetter />
+        </section>
+      )}
+
+      {/* Weather Care */}
+      <section className="section max-w-md mx-auto">
+        <WeatherCare />
+      </section>
+
       {/* Personal Message from Shaker */}
-      <section className="section max-w-md mx-auto mb-6">
+      <section className="section max-w-md mx-auto">
         <PersonalMessages />
       </section>
 
       {/* Vibe Dashboard */}
-      <section className="section glass-card p-6 mb-8 max-w-md mx-auto">
+      <section className="section glass-card p-6 max-w-md mx-auto">
         <VibeDashboard />
+      </section>
+
+      {/* Quick Playlists */}
+      <section className="section max-w-md mx-auto">
+        <ComfortPlaylist compact />
       </section>
 
       {/* Quick Actions */}
@@ -155,7 +188,7 @@ export default function Home() {
             <Link
               key={action.href}
               href={action.href}
-              className="glass-card p-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform text-center group"
+              className="glass-card p-4 flex flex-col items-center gap-2 hover:scale-105 transition-transform text-center group active:scale-95"
             >
               <span className="text-3xl">{action.emoji}</span>
               <div>
@@ -166,7 +199,11 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      {/* Special Dates Countdown */}
+      <section className="section max-w-md mx-auto">
+        <SpecialDatesCountdown />
+      </section>
     </main>
   );
 }
-

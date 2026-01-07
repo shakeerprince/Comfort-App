@@ -1,11 +1,12 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import HugAnimation from '@/components/HugAnimation';
 import SelfCareReminders from '@/components/SelfCareReminders';
-import SpecialDates from '@/components/SpecialDates';
+import QuickSOS from '@/components/QuickSOS';
+import ComfortPlaylist from '@/components/ComfortPlaylist';
 import { Heart, Sparkles } from 'lucide-react';
 
 gsap.registerPlugin(useGSAP);
@@ -43,19 +44,24 @@ export default function SupportPage() {
                 </p>
             </section>
 
+            {/* Quick SOS */}
+            <section className="section mb-8 max-w-md mx-auto">
+                <QuickSOS />
+            </section>
+
             {/* Hug Animation */}
             <section className="section glass-card p-6 mb-8 max-w-md mx-auto">
                 <HugAnimation partnerName="Keerthi" />
             </section>
 
+            {/* Comfort Playlists */}
+            <section className="section mb-8 max-w-md mx-auto">
+                <ComfortPlaylist />
+            </section>
+
             {/* Self Care Reminders */}
             <section className="section glass-card p-6 mb-8 max-w-md mx-auto">
                 <SelfCareReminders />
-            </section>
-
-            {/* Special Dates */}
-            <section className="section glass-card p-6 mb-8 max-w-md mx-auto">
-                <SpecialDates />
             </section>
 
             {/* Love Note */}
@@ -67,7 +73,7 @@ export default function SupportPage() {
                     </div>
                     <p className="text-sm leading-relaxed">
                         Hey Keerthi, I built this whole app just for you because you deserve
-                        all the love and care in the world. You're my everything, and I'll
+                        all the love and care in the world. You&apos;re my everything, and I&apos;ll
                         always be here for you - through every cramp, every mood swing, and
                         every tough day. I love you more than words can ever express. 💕
                     </p>
