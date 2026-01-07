@@ -13,8 +13,17 @@ export async function GET(request: NextRequest) {
             FROM user_status
         `;
 
+        interface UserRow {
+            user_role: string;
+            status: string;
+            lat: number | null;
+            lng: number | null;
+            last_pulse: number | null;
+            last_seen: number;
+        }
+
         const usersMap: Record<string, { status: string; lat: number | null; lng: number | null; lastPulse: number | null; lastSeen: number }> = {};
-        users.forEach((u: { user_role: string; status: string; lat: number | null; lng: number | null; last_pulse: number | null; last_seen: number }) => {
+        (users as UserRow[]).forEach((u) => {
             usersMap[u.user_role] = {
                 status: u.status,
                 lat: u.lat,
