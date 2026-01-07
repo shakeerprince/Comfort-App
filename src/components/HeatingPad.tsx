@@ -11,7 +11,7 @@ export default function HeatingPad() {
     const [isOn, setIsOn] = useState(false);
     const [warmthLevel, setWarmthLevel] = useState(2); // 1-3
     const containerRef = useRef<HTMLDivElement>(null);
-    const padRef = useRef<HTMLDivElement>(null);
+    const padRef = useRef<HTMLButtonElement>(null);
     const glowRef = useRef<HTMLDivElement>(null);
 
     useGSAP(() => {
@@ -114,8 +114,8 @@ export default function HeatingPad() {
                     ref={padRef}
                     onClick={togglePad}
                     className={`relative w-48 h-48 rounded-3xl transition-all duration-500 ${isOn
-                            ? `heating-pad animate-glow`
-                            : 'heating-pad-off'
+                        ? `heating-pad animate-glow`
+                        : 'heating-pad-off'
                         }`}
                 >
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
@@ -138,8 +138,8 @@ export default function HeatingPad() {
                                 key={level}
                                 onClick={() => setWarmthLevel(level)}
                                 className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${warmthLevel >= level
-                                        ? 'bg-gradient-to-br from-orange-400 to-red-400 text-white scale-110'
-                                        : 'bg-white/20 opacity-50'
+                                    ? 'bg-gradient-to-br from-orange-400 to-red-400 text-white scale-110'
+                                    : 'bg-white/20 opacity-50'
                                     }`}
                             >
                                 <Flame className="w-5 h-5" />
