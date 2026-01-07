@@ -150,6 +150,65 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         return () => clearInterval(interval);
     }, [myRole, sendNotification, showBrowserNotification]);
 
+    // Period reminder notifications (daily check)
+    useEffect(() => {
+        if (myRole !== 'keerthi') return; // Only for Keerthi
+
+        const checkPeriodReminder = () => {
+            const cycleData = localStorage.getItem('comfort-cycle-data');
+            if (!cycleData) return;
+
+            try {
+                const data = JSON.parse(cycleData);
+                if (!data.lastPeriodStart) return;
+
+                const lastStart = new Date(data.lastPeriodStart);
+                const cycleLength = data.cycleLength || 28;
+                const nextPeriod = new Date(lastStart);
+                nextPeriod.setDate(nextPeriod.getDate() + cycleLength);
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const daysUntil = Math.ceil((nextPeriod.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+                // Check if we already sent a reminder today
+                const lastPeriodReminder = localStorage.getItem('comfort-last-period-reminder');
+                const todayStr = today.toISOString().split('T')[0];
+                if (lastPeriodReminder === todayStr) return;
+
+                // Send reminders based on days until period
+                if (daysUntil >= 0 && daysUntil <= 7) {
+                    let message = '';
+                    if (daysUntil === 0) {
+                        message = "Keerthi, your period might start today! 🌸 Shaker has everything ready for you 💕";
+                    } else if (daysUntil === 1) {
+                        message = "Your period may start tomorrow, Keerthi! 💕 Shaker is preparing your comfort kit 🧡";
+                    } else if (daysUntil <= 3) {
+                        message = `Your period is expected in ${daysUntil} days. Shaker is stocking up on chocolate! 🍫💕`;
+                    } else if (daysUntil <= 7) {
+                        message = `Heads up Keerthi! Your period may start in about ${daysUntil} days 📅💕`;
+                    }
+
+                    if (message) {
+                        showBrowserNotification('Period Reminder 🌸', message);
+                        localStorage.setItem('comfort-last-period-reminder', todayStr);
+                    }
+                }
+            } catch (e) {
+                console.error('Error checking period reminder:', e);
+            }
+        };
+
+        // Check on load (after 10 seconds) and then every hour
+        const initialTimeout = setTimeout(checkPeriodReminder, 10000);
+        const interval = setInterval(checkPeriodReminder, 60 * 60 * 1000);
+
+        return () => {
+            clearTimeout(initialTimeout);
+            clearInterval(interval);
+        };
+    }, [myRole, showBrowserNotification]);
+
     const markAsRead = useCallback(async (id: string) => {
         setNotifications(prev => prev.map(n =>
             n.id === id ? { ...n, read: true } : n

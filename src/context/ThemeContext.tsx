@@ -76,9 +76,9 @@ interface ThemeContextType {
 
 // Create context with default value to prevent null during hydration
 const defaultContext: ThemeContextType = {
-    theme: 'blossom',
+    theme: 'moonlight',
     setTheme: () => { },
-    themeConfig: themes.blossom,
+    themeConfig: themes.moonlight,
 };
 
 const ThemeContext = createContext<ThemeContextType>(defaultContext);
@@ -86,7 +86,7 @@ const ThemeContext = createContext<ThemeContextType>(defaultContext);
 const THEME_STORAGE_KEY = 'cozycycle-theme';
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-    const [theme, setThemeState] = useState<ThemeType>('blossom');
+    const [theme, setThemeState] = useState<ThemeType>('moonlight');
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
