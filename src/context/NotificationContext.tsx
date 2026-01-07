@@ -65,6 +65,41 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    // Play custom notification sound using Web Audio API
+    const playNotificationSound = useCallback(() => {
+        try {
+            const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+            // Create a pleasant chime sound
+            const playTone = (frequency: number, startTime: number, duration: number) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + startTime);
+
+                // Fade in and out for smooth sound
+                gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + startTime + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration);
+
+                oscillator.start(audioContext.currentTime + startTime);
+                oscillator.stop(audioContext.currentTime + startTime + duration);
+            };
+
+            // Play a sweet three-note chime (like a gentle notification)
+            playTone(523.25, 0, 0.15);      // C5
+            playTone(659.25, 0.12, 0.15);   // E5
+            playTone(783.99, 0.24, 0.2);    // G5
+
+        } catch (e) {
+            console.log('Could not play notification sound:', e);
+        }
+    }, []);
+
     // Show browser notification
     const showBrowserNotification = useCallback((title: string, body: string) => {
         if (permissionGranted && typeof window !== 'undefined' && 'Notification' in window) {
@@ -74,7 +109,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                     icon: '/icon-192.png',
                     badge: '/icon-192.png',
                 });
-                // Vibrate separately if supported
+
+                // Play custom notification sound
+                playNotificationSound();
+
+                // Vibrate if supported
                 if (navigator.vibrate) {
                     navigator.vibrate([200, 100, 200]);
                 }
@@ -82,7 +121,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 console.error('Failed to show notification:', e);
             }
         }
-    }, [permissionGranted]);
+    }, [permissionGranted, playNotificationSound]);
 
     // Poll for notifications
     useEffect(() => {
