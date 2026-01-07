@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql, initDatabase } from '@/lib/db';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     if (!sql) {
         return NextResponse.json({ users: {} });
     }
@@ -13,25 +13,17 @@ export async function GET(request: NextRequest) {
             FROM user_status
         `;
 
-        interface UserRow {
-            user_role: string;
-            status: string;
-            lat: number | null;
-            lng: number | null;
-            last_pulse: number | null;
-            last_seen: number;
-        }
-
-        const usersMap: Record<string, { status: string; lat: number | null; lng: number | null; lastPulse: number | null; lastSeen: number }> = {};
-        (users as UserRow[]).forEach((u) => {
-            usersMap[u.user_role] = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const usersMap: Record<string, any> = {};
+        for (const u of users) {
+            usersMap[u.user_role as string] = {
                 status: u.status,
                 lat: u.lat,
                 lng: u.lng,
                 lastPulse: u.last_pulse,
                 lastSeen: u.last_seen
             };
-        });
+        }
 
         return NextResponse.json({ users: usersMap });
     } catch (error) {
