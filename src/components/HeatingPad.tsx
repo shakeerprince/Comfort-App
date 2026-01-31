@@ -159,7 +159,7 @@ export default function HeatingPad() {
                     <p className="text-sm">
                         🧡 Close your eyes and imagine this warmth hugging your tummy.
                         You&apos;re safe, you&apos;re loved, and this will pass.
-                        <span className="opacity-60"> - Shaker</span>
+                        <span className="opacity-60"> - Your Partner</span>
                     </p>
                 </div>
             )}

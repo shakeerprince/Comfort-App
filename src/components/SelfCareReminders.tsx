@@ -132,8 +132,8 @@ export default function SelfCareReminders() {
                         key={reminder.id}
                         onClick={() => toggleReminder(reminder.id)}
                         className={`w-full glass-card p-3 flex items-center gap-3 transition-all ${reminder.done
-                                ? 'opacity-50 scale-98'
-                                : 'hover:scale-102'
+                            ? 'opacity-50 scale-98'
+                            : 'hover:scale-102'
                             }`}
                     >
                         <span className="text-xl">{reminder.emoji}</span>
@@ -141,8 +141,8 @@ export default function SelfCareReminders() {
                             {reminder.text}
                         </span>
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center ${reminder.done
-                                ? 'bg-green-400 text-white'
-                                : 'bg-white/20'
+                            ? 'bg-green-400 text-white'
+                            : 'bg-white/20'
                             }`}>
                             {reminder.done && <Check className="w-4 h-4" />}
                         </div>
@@ -150,10 +150,10 @@ export default function SelfCareReminders() {
                 ))}
             </div>
 
-            {/* Shaker's note */}
+            {/* Partner's note */}
             <div className="text-center text-xs opacity-50 mt-4">
                 <Heart className="w-4 h-4 inline mr-1" fill="#f472b6" />
-                Shaker wants you to take care of yourself 💕
+                Your partner wants you to take care of yourself 💕
             </div>
         </div>
     );

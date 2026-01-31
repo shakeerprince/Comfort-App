@@ -70,22 +70,16 @@ export default function Footer() {
                     <div className="flex items-center justify-center gap-2 text-lg">
                         <span>Made with</span>
                         <Heart className="w-5 h-5 text-red-400 animate-pulse" fill="#f87171" />
-                        <span>by</span>
-                        <span className="font-bold text-warm">Shaker</span>
+                        <span>for</span>
+                        <span className="font-bold text-warm">Couples</span>
                     </div>
 
-                    <p className="text-lg">
-                        For my strongest, bravest{' '}
-                        <span className="font-bold text-cozy">Keerthi</span> 🌸
-                    </p>
-
                     <p className="text-sm opacity-60 max-w-md mx-auto">
-                        You&apos;re never alone in this. I&apos;m always here for you, even when I can&apos;t physically be there.
-                        Send me a pulse anytime 💕
+                        Your private space for connection, comfort, and care. 💕
                     </p>
 
                     <p className="text-xs opacity-40 pt-4">
-                        Comfort App © {new Date().getFullYear()} • With infinite love from Shaker 💕
+                        Comfort App © {new Date().getFullYear()} • Secure & Private
                     </p>
                 </div>
             </div>

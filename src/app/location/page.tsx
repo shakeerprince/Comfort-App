@@ -23,13 +23,16 @@ const MapComponent = dynamic(() => import('@/components/LocationMap'), {
 });
 
 export default function LocationPage() {
-    const { myRole, partnerRole, myLocation, partnerLocation, setMyLocation, distance } = useCouple();
+    const { myName, partnerName, myLocation, partnerLocation, setMyLocation, distance } = useCouple();
     const [isTracking, setIsTracking] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [watchId, setWatchId] = useState<number | null>(null);
     const mainRef = useRef<HTMLDivElement>(null);
 
-    const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+    const capitalize = (s: string | null | undefined) => {
+        if (!s) return 'Partner';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    };
 
     useGSAP(() => {
         if (!mainRef.current) return;
@@ -104,7 +107,7 @@ export default function LocationPage() {
                     <h1 className="text-3xl font-bold text-gradient">Live Location</h1>
                 </div>
                 <p className="text-lg opacity-70">
-                    See where {capitalize(partnerRole)} is 💕
+                    See where {capitalize(partnerName)} is 💕
                 </p>
             </section>
 
@@ -126,8 +129,8 @@ export default function LocationPage() {
                     <MapComponent
                         myLocation={myLocation}
                         partnerLocation={partnerLocation}
-                        myRole={myRole}
-                        partnerRole={partnerRole}
+                        myName={myName}
+                        partnerName={partnerName}
                     />
                 </div>
             </section>
@@ -143,7 +146,7 @@ export default function LocationPage() {
                         className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-4 px-6 rounded-2xl font-semibold flex items-center justify-center gap-3 hover:scale-105 transition-transform shadow-lg shadow-blue-500/30"
                     >
                         <Navigation className="w-6 h-6" />
-                        Navigate to {capitalize(partnerRole)}
+                        Navigate to {capitalize(partnerName)}
                         <ExternalLink className="w-5 h-5 opacity-70" />
                     </button>
                     <p className="text-xs text-center opacity-50 mt-2">
@@ -192,7 +195,7 @@ export default function LocationPage() {
 
                     {partnerLocation && (
                         <p className="text-xs text-center opacity-50 mt-2">
-                            💕 {capitalize(partnerRole)}&apos;s location: {partnerLocation.lat.toFixed(4)}, {partnerLocation.lng.toFixed(4)}
+                            💕 {capitalize(partnerName)}&apos;s location: {partnerLocation.lat.toFixed(4)}, {partnerLocation.lng.toFixed(4)}
                         </p>
                     )}
                 </div>

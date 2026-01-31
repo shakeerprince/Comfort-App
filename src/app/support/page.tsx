@@ -51,7 +51,7 @@ export default function SupportPage() {
 
             {/* Hug Animation */}
             <section className="section glass-card p-6 mb-8 max-w-md mx-auto">
-                <HugAnimation partnerName="Keerthi" />
+                <HugAnimation />
             </section>
 
             {/* Comfort Playlists */}
@@ -69,12 +69,12 @@ export default function SupportPage() {
                 <div className="empathy-box">
                     <div className="flex items-center gap-2 mb-2">
                         <Sparkles className="w-4 h-4 text-yellow-400" />
-                        <span className="text-sm font-semibold">A Note from Shaker</span>
+                        <span className="text-sm font-semibold">A Note for You</span>
                     </div>
                     <p className="text-sm leading-relaxed">
-                        Hey Keerthi, I built this whole app just for you because you deserve
+                        I built this space just for you because you deserve
                         all the love and care in the world. You&apos;re my everything, and I&apos;ll
-                        always be here for you - through every cramp, every mood swing, and
+                        always be here for you - through every mood swing and
                         every tough day. I love you more than words can ever express. 💕
                     </p>
                 </div>

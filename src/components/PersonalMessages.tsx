@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Heart, Sparkles, Sun, Moon, Coffee, Star } from 'lucide-react';
+import { useCouple } from '@/context/CoupleContext';
 
 interface PersonalMessage {
     text: string;
@@ -9,7 +10,8 @@ interface PersonalMessage {
     time?: 'morning' | 'afternoon' | 'evening' | 'night';
 }
 
-const messages: PersonalMessage[] = [
+// Templates use {partnerName} placeholder
+const messageTemplates: PersonalMessage[] = [
     // Morning messages
     { text: "Good morning, my sunshine! Hope today treats you gently 🌸", emoji: "☀️", time: 'morning' },
     { text: "Rise and shine, beautiful! Remember, I love you endlessly 💕", emoji: "🌅", time: 'morning' },
@@ -18,7 +20,7 @@ const messages: PersonalMessage[] = [
     // Afternoon messages
     { text: "Hey cutie! Just a reminder that you're amazing 💝", emoji: "🌸", time: 'afternoon' },
     { text: "Thinking of you right now... Hope your day is going well 💕", emoji: "💭", time: 'afternoon' },
-    { text: "You're doing great, Keerthi! Keep going, I believe in you 🌟", emoji: "⭐", time: 'afternoon' },
+    { text: "You're doing great, {partnerName}! Keep going, I believe in you 🌟", emoji: "⭐", time: 'afternoon' },
 
     // Evening messages
     { text: "Almost through the day! I'm so proud of you 💗", emoji: "🌆", time: 'evening' },
@@ -27,7 +29,7 @@ const messages: PersonalMessage[] = [
 
     // Night messages
     { text: "Sweet dreams, my beautiful! I love you to the moon and back 🌙", emoji: "🌙", time: 'night' },
-    { text: "Rest well, Keerthi. Tomorrow is a new day full of love 💕", emoji: "😴", time: 'night' },
+    { text: "Rest well, {partnerName}. Tomorrow is a new day full of love 💕", emoji: "😴", time: 'night' },
     { text: "Goodnight, my everything. You're always in my heart 💖", emoji: "🛏️", time: 'night' },
 
     // Generic love messages (anytime)
@@ -36,7 +38,7 @@ const messages: PersonalMessage[] = [
     { text: "I fall more in love with you every single day 💗", emoji: "🥰" },
     { text: "You make my heart do happy little flips 🦋", emoji: "💕" },
     { text: "Distance means nothing when someone means everything 💝", emoji: "🌏" },
-    { text: "You're not just my girlfriend, you're my best friend 💖", emoji: "👫" },
+    { text: "You're not just my partner, you're my best friend 💖", emoji: "👫" },
     { text: "Thank you for being you. You're perfect to me 🌟", emoji: "⭐" },
     { text: "I'm so lucky to have you in my life 🍀", emoji: "💚" },
     { text: "Your smile is my favorite thing in the whole world 😊", emoji: "💕" },
@@ -61,15 +63,20 @@ function getTimeIcon() {
     }
 }
 
+function replacePlaceholders(text: string, partnerName: string): string {
+    return text.replace(/{partnerName}/g, partnerName);
+}
+
 export default function PersonalMessages() {
     const [currentMessage, setCurrentMessage] = useState<PersonalMessage | null>(null);
     const [isVisible, setIsVisible] = useState(true);
+    const { myName, partnerName } = useCouple();
 
     useEffect(() => {
         const timeOfDay = getTimeOfDay();
 
         // Filter messages for current time or generic
-        const appropriateMessages = messages.filter(
+        const appropriateMessages = messageTemplates.filter(
             m => m.time === timeOfDay || !m.time
         );
 
@@ -85,7 +92,7 @@ export default function PersonalMessages() {
         setIsVisible(false);
         setTimeout(() => {
             const timeOfDay = getTimeOfDay();
-            const appropriateMessages = messages.filter(
+            const appropriateMessages = messageTemplates.filter(
                 m => m.time === timeOfDay || !m.time
             );
             const randomMessage = appropriateMessages[
@@ -98,20 +105,22 @@ export default function PersonalMessages() {
 
     if (!currentMessage) return null;
 
+    const displayText = replacePlaceholders(currentMessage.text, partnerName);
+
     return (
         <div className="empathy-box cursor-pointer hover:shadow-lg transition-all" onClick={getNewMessage}>
             <div className="flex items-start gap-3">
                 <div className="flex flex-col items-center gap-1">
-                    <Heart className="w-5 h-5 text-pink-500 flex-shrink-0" fill="#ec4899" />
+                    <Heart className="w-5 h-5 text-[#9A2143] flex-shrink-0" fill="#9A2143" />
                     {getTimeIcon()}
                 </div>
                 <div className={`transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
                     <p className="text-sm leading-relaxed">
                         <span className="mr-2">{currentMessage.emoji}</span>
-                        {currentMessage.text}
+                        {displayText}
                     </p>
                     <div className="flex items-center justify-between mt-2">
-                        <p className="text-xs opacity-50">- Shaker 💕</p>
+                        <p className="text-xs opacity-50">- {myName} 💕</p>
                         <p className="text-xs opacity-40 flex items-center gap-1">
                             <Sparkles className="w-3 h-3" />
                             Tap for another

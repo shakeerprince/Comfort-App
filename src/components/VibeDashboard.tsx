@@ -9,24 +9,25 @@ import { Heart, Zap, MapPin, Sparkles } from 'lucide-react';
 gsap.registerPlugin(useGSAP);
 
 const statusOptions: { value: VibeStatus; emoji: string; label: string; color: string }[] = [
-    { value: 'happy', emoji: '😊', label: 'Happy', color: 'from-yellow-400 to-orange-400' },
-    { value: 'miss-you', emoji: '🥺', label: 'Miss You', color: 'from-pink-400 to-rose-400' },
-    { value: 'sleepy', emoji: '😴', label: 'Sleepy', color: 'from-indigo-400 to-purple-400' },
-    { value: 'focused', emoji: '🎯', label: 'Focused', color: 'from-blue-400 to-cyan-400' },
-    { value: 'sad', emoji: '😢', label: 'Sad', color: 'from-gray-400 to-slate-500' },
-    { value: 'cuddly', emoji: '🤗', label: 'Cuddly', color: 'from-rose-400 to-pink-500' },
+    { value: 'happy', emoji: '😊', label: 'Happy', color: 'from-[#BFA054] to-[#E3C578]' }, // Gold
+    { value: 'miss-you', emoji: '🥺', label: 'Miss You', color: 'from-[#9A2143] to-[#C44569]' }, // Red
+    { value: 'sleepy', emoji: '😴', label: 'Sleepy', color: 'from-[#2D3A5E] to-[#1E2742]' }, // Navy
+    { value: 'focused', emoji: '🎯', label: 'Focused', color: 'from-[#8F763B] to-[#BFA054]' }, // Dark Gold
+    { value: 'sad', emoji: '😢', label: 'Sad', color: 'from-gray-500 to-gray-600' },
+    { value: 'cuddly', emoji: '🤗', label: 'Cuddly', color: 'from-[#C44569] to-[#9A2143]' }, // Light Red
 ];
 
 export default function VibeDashboard() {
     const {
-        myRole,
-        partnerRole,
+        myName,
+        partnerName,
         myStatus,
         partnerStatus,
         setMyStatus,
         distance,
         lastPartnerPulse,
-        sendPulse
+        sendPulse,
+        isPaired,
     } = useCouple();
 
     const [pulseAnimation, setPulseAnimation] = useState(false);
@@ -80,16 +81,23 @@ export default function VibeDashboard() {
     };
 
     const partnerStatusInfo = statusOptions.find(s => s.value === partnerStatus);
-    const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+    if (!isPaired) {
+        return (
+            <div className="text-center py-8 opacity-60">
+                <p>Connect with your partner to see their vibe 💕</p>
+            </div>
+        );
+    }
 
     return (
         <div ref={containerRef} className="space-y-6">
             {/* Received Pulse Alert */}
             {receivedPulse && (
                 <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 animate-bounce">
-                    <div className="px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full shadow-lg flex items-center gap-2">
+                    <div className="px-6 py-3 bg-gradient-to-r from-[#9A2143] to-[#C44569] text-white rounded-full shadow-lg flex items-center gap-2">
                         <Heart className="w-5 h-5 animate-pulse" fill="white" />
-                        <span className="font-semibold">{capitalize(partnerRole)} sent you a pulse! 💕</span>
+                        <span className="font-semibold">{partnerName} sent you a pulse! 💕</span>
                     </div>
                 </div>
             )}
@@ -98,7 +106,7 @@ export default function VibeDashboard() {
             <div className="animate-in glass-card p-6">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="font-semibold text-lg opacity-70">
-                        {capitalize(partnerRole)}&apos;s Vibe
+                        {partnerName}&apos;s Vibe
                     </h3>
                     <div className="flex items-center gap-2 text-xs opacity-50">
                         <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
@@ -113,7 +121,7 @@ export default function VibeDashboard() {
                     <div>
                         <p className="text-2xl font-bold">{partnerStatusInfo?.label}</p>
                         <p className="text-sm opacity-60">
-                            {partnerRole === 'keerthi' ? 'Your girl' : 'Your love'} is feeling {partnerStatusInfo?.label.toLowerCase()}
+                            Your love is feeling {partnerStatusInfo?.label.toLowerCase()}
                         </p>
                     </div>
                 </div>
@@ -122,18 +130,18 @@ export default function VibeDashboard() {
             {/* Haptic Pulse Button */}
             <div className="animate-in text-center">
                 <p className="text-sm opacity-60 mb-4">
-                    Tap to send a vibration to {capitalize(partnerRole)}&apos;s phone
+                    Tap to send a vibration to {partnerName}&apos;s phone
                 </p>
 
                 <button
                     ref={pulseButtonRef}
                     onClick={handlePulse}
-                    className={`relative w-32 h-32 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 shadow-lg mx-auto flex items-center justify-center transition-all ${pulseAnimation ? 'ring-4 ring-pink-300 ring-opacity-50' : ''
+                    className={`relative w-32 h-32 rounded-full bg-gradient-to-br from-[#9A2143] to-[#C44569] shadow-lg mx-auto flex items-center justify-center transition-all ${pulseAnimation ? 'ring-4 ring-[#C44569] ring-opacity-50' : ''
                         }`}
                 >
                     {/* Pulse rings */}
-                    <div className="absolute inset-0 rounded-full bg-pink-400 animate-ping opacity-20" />
-                    <div className="absolute inset-2 rounded-full bg-pink-400 animate-ping opacity-10" style={{ animationDelay: '0.3s' }} />
+                    <div className="absolute inset-0 rounded-full bg-[#9A2143] animate-ping opacity-20" />
+                    <div className="absolute inset-2 rounded-full bg-[#9A2143] animate-ping opacity-10" style={{ animationDelay: '0.3s' }} />
 
                     <div className="relative flex flex-col items-center text-white">
                         <Zap className="w-10 h-10 mb-1" fill="white" />
@@ -142,7 +150,7 @@ export default function VibeDashboard() {
                 </button>
 
                 <p className="text-xs opacity-40 mt-4">
-                    {capitalize(partnerRole)} will feel a vibration 💕
+                    {partnerName} will feel a vibration 💕
                 </p>
             </div>
 
@@ -155,11 +163,11 @@ export default function VibeDashboard() {
 
                 {distance !== null ? (
                     <>
-                        <p className="text-4xl font-bold text-gradient mb-2">
+                        <p className="text-4xl font-bold text-gradient-gold mb-2">
                             {distance < 1 ? `${Math.round(distance * 1000)}m` : `${distance.toFixed(1)}km`}
                         </p>
                         <p className="text-sm opacity-60">
-                            Between you and {capitalize(partnerRole)}
+                            Between you and {partnerName}
                         </p>
                     </>
                 ) : (
@@ -185,8 +193,8 @@ export default function VibeDashboard() {
                             key={status.value}
                             onClick={() => setMyStatus(status.value)}
                             className={`p-4 rounded-2xl flex flex-col items-center gap-2 transition-all ${myStatus === status.value
-                                    ? `bg-gradient-to-br ${status.color} text-white scale-105 shadow-lg`
-                                    : 'glass-card hover:scale-102'
+                                ? `bg-gradient-to-br ${status.color} text-white scale-105 shadow-md`
+                                : 'glass-card hover:scale-102'
                                 }`}
                         >
                             <span className="text-2xl">{status.emoji}</span>

@@ -287,7 +287,7 @@ export default function MemoriesPage() {
                         <Heart className="w-4 h-4 inline mr-2" fill="#f472b6" />
                         Every moment with you is a memory I treasure forever 💕
                     </p>
-                    <p className="text-xs opacity-50 mt-2">- Shaker</p>
+                    <p className="text-xs opacity-50 mt-2">- Your Partner</p>
                 </div>
             </section>
         </main>

@@ -14,12 +14,11 @@ interface Orb {
 }
 
 // Softer, warmer orbs for period comfort
+// Subtle Royal Orbs
 const orbs: Orb[] = [
-  { className: 'orb-rose', size: 280, x: '15%', y: '20%' },
-  { className: 'orb-peach', size: 220, x: '75%', y: '15%' },
-  { className: 'orb-lavender', size: 260, x: '80%', y: '55%' },
-  { className: 'orb-cream', size: 240, x: '10%', y: '65%' },
-  { className: 'orb-rose', size: 180, x: '50%', y: '45%' },
+  { className: 'orb-rose', size: 300, x: '10%', y: '20%' }, // Burgundy
+  { className: 'orb-peach', size: 350, x: '80%', y: '60%' }, // Gold
+  { className: 'orb-rose', size: 200, x: '60%', y: '20%' }, // Burgundy
 ];
 
 export default function FloatingOrbs() {

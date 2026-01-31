@@ -1,79 +1,153 @@
 @import "tailwindcss";
 
 :root {
-  /* CozyCycle - Warm, Cozy Color Palette */
-  --rose-soft: #fce4ec;
-  --rose-medium: #f8bbd9;
-  --rose-warm: #f48fb1;
-  --peach: #ffccbc;
-  --peach-deep: #ffab91;
-  --lavender: #e1bee7;
-  --lavender-soft: #f3e5f5;
-  --cream: #fff8e1;
-  --warm-brown: #8d6e63;
-  --cozy-pink: #f06292;
+  /* ===== THEME VARIABLES (Default: Royal) ===== */
 
-  /* Heating pad warm colors */
-  --heat-soft: #ffecb3;
-  --heat-medium: #ffcc80;
-  --heat-warm: #ff8a65;
+  /* DEFAULT: ROYAL THEME */
+  --royal-red: #9A2143;
+  --royal-gold: #BFA054;
+  --royal-cream: #FBF8F2;
+  --royal-navy: #1E2742;
 
-  /* UI Colors - Default Blossom Theme */
-  --background: #fef7f7;
-  --foreground: #5d4037;
-  --text-muted: #8d6e63;
+  /* Semantic Mapping (Default) */
+  --theme-primary: #9A2143;
+  --theme-primary-light: #C44569;
+  --theme-primary-dark: #5D1225;
+  /* Darker for text */
 
-  /* Theme colors (set by ThemeContext) */
-  --theme-primary: #f48fb1;
-  --theme-secondary: #f8bbd9;
-  --theme-background: #fef7f7;
-  --theme-foreground: #5d4037;
-  --theme-accent: #f06292;
+  --theme-secondary: #BFA054;
+  --theme-secondary-light: #E3C578;
+  --theme-secondary-dark: #7A5C1F;
+  /* Darker for text */
 
-  /* Shadows */
-  --shadow-soft: 0 4px 20px rgba(244, 143, 177, 0.2);
-  --shadow-warm: 0 0 40px rgba(255, 138, 101, 0.3);
-  --shadow-cozy: 0 8px 32px rgba(240, 98, 146, 0.15);
+  --theme-background: #FBF8F2;
+  --theme-foreground: #1E2742;
+  /* Deep Navy Text */
+
+  --theme-card-bg-light: rgba(255, 255, 255, 0.95);
+  --theme-card-bg-dark: rgba(18, 18, 20, 0.85);
+  /* Neutral Dark */
+
+  --theme-border: rgba(191, 160, 84, 0.3);
+  --theme-shadow-color: rgba(30, 39, 66, 0.15);
+
+  /* Helper standard vars */
+  --background: var(--theme-background);
+  --foreground: var(--theme-foreground);
+  --muted: #8A92A6;
+  --border: var(--theme-border);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-quicksand);
+/* ===== THEME DEFINITIONS (High Contrast) ===== */
+
+/* COFFEE THEME */
+[data-theme='coffee'] {
+  --theme-primary: #6D4C41;
+  /* Darker Brown */
+  --theme-primary-light: #8D6E63;
+  --theme-primary-dark: #3E2723;
+  /* Almost Black Brown */
+
+  --theme-secondary: #D7CCC8;
+  --theme-secondary-light: #EFEBE9;
+  --theme-secondary-dark: #8D6E63;
+
+  --theme-background: #EFEBE9;
+  /* Light Mocha */
+  --theme-foreground: #3E2723;
+  /* Deep Espresso */
+
+  --theme-border: rgba(109, 76, 65, 0.2);
+  --theme-shadow-color: rgba(62, 39, 35, 0.15);
+
+  --theme-card-bg-dark: rgba(28, 20, 18, 0.9);
 }
 
-/* Theme-specific overrides */
-.theme-blossom {
-  --background: #fef7f7;
-  --foreground: #5d4037;
+/* FOREST THEME */
+[data-theme='forest'] {
+  --theme-primary: #2E7D32;
+  /* Rich Green */
+  --theme-primary-light: #66BB6A;
+  --theme-primary-dark: #1B5E20;
+  /* Deep Forest Green */
+
+  --theme-secondary: #81C784;
+  --theme-secondary-light: #C8E6C9;
+  --theme-secondary-dark: #388E3C;
+
+  --theme-background: #F1F8E9;
+  /* Very Light Green */
+  --theme-foreground: #1B5E20;
+  /* Dark Green Text */
+
+  --theme-border: rgba(46, 125, 50, 0.2);
+  --theme-shadow-color: rgba(27, 94, 32, 0.15);
+
+  --theme-card-bg-dark: rgba(10, 26, 12, 0.9);
 }
 
-.theme-sage {
-  --background: #f1f8e9;
-  --foreground: #33691e;
-  --cozy-pink: #66bb6a;
+/* PURPLE THEME */
+[data-theme='purple'] {
+  --theme-primary: #7B1FA2;
+  /* Deep Purple */
+  --theme-primary-light: #BA68C8;
+  --theme-primary-dark: #4A148C;
+  /* Ink Purple */
+
+  --theme-secondary: #CE93D8;
+  --theme-secondary-light: #F3E5F5;
+  --theme-secondary-dark: #8E24AA;
+
+  --theme-background: #F3E5F5;
+  /* Light Lavender */
+  --theme-foreground: #4A148C;
+  /* Deep Purple Text */
+
+  --theme-border: rgba(123, 31, 162, 0.2);
+  --theme-shadow-color: rgba(74, 20, 140, 0.15);
+
+  --theme-card-bg-dark: rgba(20, 10, 26, 0.9);
 }
 
-.theme-moonlight {
-  --background: #1a1a2e;
-  --foreground: #e8e8ff;
-  --cozy-pink: #9575cd;
+/* OCEAN THEME */
+[data-theme='ocean'] {
+  --theme-primary: #0277BD;
+  /* Deep Ocean Blue */
+  --theme-primary-light: #4FC3F7;
+  --theme-primary-dark: #01579B;
+  /* Midnight Blue */
+
+  --theme-secondary: #81D4FA;
+  --theme-secondary-light: #E1F5FE;
+  --theme-secondary-dark: #0288D1;
+
+  --theme-background: #E1F5FE;
+  /* Light Mist */
+  --theme-foreground: #01579B;
+  /* Dark Blue Text */
+
+  --theme-border: rgba(2, 119, 189, 0.2);
+  --theme-shadow-color: rgba(1, 87, 155, 0.15);
+
+  --theme-card-bg-dark: rgba(10, 20, 30, 0.9);
 }
 
-.theme-sunshine {
-  --background: #fffde7;
-  --foreground: #5d4037;
-  --cozy-pink: #ffa726;
-}
-
-/* Dark mode - cozy night mode (when moonlight theme is not active) */
+/* DARK MODE OVERRIDES */
 @media (prefers-color-scheme: dark) {
-  :root:not(.theme-blossom):not(.theme-sage):not(.theme-sunshine) {
-    --background: #1a1214;
-    --foreground: #f8e1e5;
-    --text-muted: #d7a8b0;
+  :root {
+    --theme-background: #0F1115;
+    /* Neutral Black */
+    --theme-foreground: #F5F5F7;
+    /* Bright White-ish */
+    --muted: #A1A1AA;
+    --theme-border: rgba(255, 255, 255, 0.1);
+
+    /* In dark mode, 'primary' is often too dark for text, so we lighten it or use white */
+    /* We keep the variables but UI components should prefer white text on dark cards */
   }
 }
+
+/* ===== GLOBAL STYLES ===== */
 
 * {
   box-sizing: border-box;
@@ -84,301 +158,163 @@ html {
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: 'Quicksand', 'Nunito', system-ui, -apple-system, sans-serif;
+  background: var(--theme-background);
+  color: var(--theme-foreground);
+  font-family: var(--font-sans);
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Floating orb styles - softer for period app */
-.floating-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.4;
-  pointer-events: none;
-  will-change: transform;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  color: var(--theme-foreground);
+  font-weight: 600;
+  /* Increased weight for visibility */
 }
 
-.orb-rose {
-  background: radial-gradient(circle, #f8bbd9 0%, #fce4ec 100%);
-}
+/* ===== COMPONENT STYLING (SEMANTIC) ===== */
 
-.orb-peach {
-  background: radial-gradient(circle, #ffab91 0%, #ffccbc 100%);
-}
-
-.orb-lavender {
-  background: radial-gradient(circle, #e1bee7 0%, #f3e5f5 100%);
-}
-
-.orb-cream {
-  background: radial-gradient(circle, #ffe0b2 0%, #fff8e1 100%);
-}
-
-/* Glassmorphism card - warmer */
+/* Glass Card - High Visibility */
 .glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 24px;
-  box-shadow: var(--shadow-soft);
+  background: var(--theme-card-bg-light);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  /* Clean border */
+  border-radius: 20px;
+  box-shadow: 0 4px 20px -2px var(--theme-shadow-color);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: var(--theme-foreground);
+  /* Ensure text color inherits */
 }
 
 @media (prefers-color-scheme: dark) {
   .glass-card {
-    background: rgba(50, 30, 35, 0.6);
+    background: var(--theme-card-bg-dark);
+    /* Use semantic dark bg */
     border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    /* Force white text in cards for dark mode readability */
+  }
+
+  /* Make sure headings inside cards in dark mode are white */
+  .glass-card h1,
+  .glass-card h2,
+  .glass-card h3,
+  .glass-card h4,
+  .glass-card h5,
+  .glass-card h6 {
+    color: #FFFFFF;
   }
 }
 
-/* Cozy card - for comfort elements */
-.cozy-card {
-  background: linear-gradient(135deg, rgba(255, 204, 188, 0.3) 0%, rgba(248, 187, 217, 0.3) 100%);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 28px;
-  box-shadow: var(--shadow-cozy);
-}
-
-/* Heating pad glow */
-.heating-pad {
-  background: linear-gradient(135deg, #ffcc80 0%, #ff8a65 50%, #ef5350 100%);
-  box-shadow:
-    0 0 40px rgba(255, 138, 101, 0.5),
-    0 0 80px rgba(255, 138, 101, 0.3),
-    inset 0 0 30px rgba(255, 255, 255, 0.2);
-}
-
-.heating-pad-off {
-  background: linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%);
-  box-shadow: none;
-}
-
-/* Button styles */
-.btn-cozy {
-  background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%);
-  color: white;
-  border: none;
-  border-radius: 50px;
-  padding: 14px 28px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--shadow-soft);
-  transition: all 0.3s ease;
-}
-
-.btn-cozy:hover {
+.glass-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-cozy);
+  box-shadow: 0 8px 30px -4px var(--theme-shadow-color);
 }
 
-.btn-craving {
-  background: linear-gradient(135deg, #ffab91 0%, #ff8a65 100%);
+/* Theme-colored Card (Active/Highlight) */
+.card-theme {
+  background: linear-gradient(135deg, var(--theme-background) 0%, #FFFFFF 100%);
+  border: 1px solid var(--theme-secondary);
+  box-shadow: 0 8px 32px -4px var(--theme-shadow-color);
+}
+
+/* Buttons */
+.btn-primary,
+.btn-cozy {
+  background: var(--theme-primary);
   color: white;
   border: none;
-  border-radius: 20px;
-  padding: 16px 24px;
-  font-size: 1rem;
+  border-radius: 14px;
+  padding: 16px 32px;
+  /* Plump button */
+  font-family: var(--font-sans);
   font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 138, 101, 0.3);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px var(--theme-shadow-color);
+  transition: all 0.2s ease;
 }
 
+.btn-primary:hover,
+.btn-cozy:hover {
+  background: var(--theme-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--theme-shadow-color);
+  filter: brightness(1.1);
+}
+
+.btn-secondary,
+.btn-craving {
+  background: var(--theme-secondary);
+  color: var(--theme-primary-dark);
+  /* Contrast text */
+  border-radius: 14px;
+  padding: 16px 32px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px var(--theme-shadow-color);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover,
 .btn-craving:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(255, 138, 101, 0.4);
+  background: var(--theme-secondary-dark);
+  color: white;
+  /* Flip on hover */
+  transform: translateY(-2px);
 }
 
-/* Pain level slider track */
-.pain-slider {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  height: 12px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, #c8e6c9 0%, #fff9c4 25%, #ffe0b2 50%, #ffccbc 75%, #ffcdd2 100%);
-  outline: none;
-}
-
-.pain-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: white;
-  border: 3px solid #f48fb1;
-  cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Text styles */
+/* Text Gradients - Richer */
 .text-gradient {
-  background: linear-gradient(135deg, #f48fb1 0%, #ce93d8 50%, #b39ddb 100%);
+  background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+  /* Gradient needs weight */
+}
+
+.text-gradient-secondary {
+  background: linear-gradient(135deg, var(--theme-primary-dark) 0%, var(--theme-secondary-dark) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-warm {
-  color: #ff8a65;
+/* Floating Elements */
+.floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  /* Less fade */
+  pointer-events: none;
+  will-change: transform;
 }
 
-.text-cozy {
-  color: #f48fb1;
+.orb-primary {
+  background: var(--theme-primary);
 }
 
-/* Empathy message box */
-.empathy-box {
-  background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
-  border-left: 4px solid #f48fb1;
-  border-radius: 0 16px 16px 0;
-  padding: 16px 20px;
+.orb-secondary {
+  background: var(--theme-secondary);
 }
 
-@media (prefers-color-scheme: dark) {
-  .empathy-box {
-    background: linear-gradient(135deg, rgba(244, 143, 177, 0.2) 0%, rgba(206, 147, 216, 0.2) 100%);
-  }
-}
-
-/* Animations */
-@keyframes float-gentle {
-
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes pulse-warm {
-
-  0%,
-  100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.8;
-    transform: scale(1.02);
-  }
-}
-
-@keyframes glow {
-
-  0%,
-  100% {
-    box-shadow: 0 0 30px rgba(255, 138, 101, 0.4);
-  }
-
-  50% {
-    box-shadow: 0 0 50px rgba(255, 138, 101, 0.6);
-  }
-}
-
-.animate-float {
-  animation: float-gentle 4s ease-in-out infinite;
-}
-
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
-}
-
-/* Utility */
-.perspective-1000 {
-  perspective: 1000px;
-}
-
-/* ===== MOBILE TOUCH TARGETS ===== */
-/* Ensure all buttons/links have minimum 44px touch target */
+/* Mobile Touch Targets */
 @media (max-width: 768px) {
 
   button,
   a,
-  [role="button"],
-  input[type="button"],
-  input[type="submit"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Larger touch targets for interactive elements */
-  .glass-card button,
-  .glass-card a {
-    padding: 12px 16px;
-  }
-
-  /* Prevent double-tap zoom on buttons */
-  button,
-  a {
-    touch-action: manipulation;
-  }
-
-  /* Better navbar spacing on mobile */
-  nav button {
-    min-width: 48px;
+  input,
+  select {
     min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
-
-  /* Quick action cards - larger tap area */
-  .glass-card {
-    padding: 16px;
-  }
-
-  /* Better scrolling */
-  body {
-    -webkit-overflow-scrolling: touch;
-  }
-}
-
-/* Improve click feedback on mobile */
-button:active,
-a:active,
-[role="button"]:active {
-  transform: scale(0.97);
-  transition: transform 0.1s ease;
-}
-
-/* Period tracker calendar styles */
-.calendar-day {
-  min-width: 40px;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.calendar-day:hover {
-  background: rgba(244, 143, 177, 0.2);
-}
-
-.calendar-day.period {
-  background: linear-gradient(135deg, #f48fb1 0%, #f06292 100%);
-  color: white;
-}
-
-.calendar-day.predicted {
-  background: rgba(244, 143, 177, 0.3);
-  border: 2px dashed #f48fb1;
-}
-
-.calendar-day.today {
-  border: 2px solid #9575cd;
 }

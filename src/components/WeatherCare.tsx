@@ -37,7 +37,7 @@ const getSimulatedWeather = (): WeatherData => {
 const getCareMessage = (weather: WeatherData): { message: string; emoji: string; tips: string[] } => {
     if (weather.condition === 'hot' || weather.temp >= 35) {
         return {
-            message: "It's really hot today, Keerthi! Stay hydrated 💧",
+            message: "It's really hot today! Stay hydrated 💧",
             emoji: "🥵",
             tips: [
                 "Drink lots of water!",
@@ -59,7 +59,7 @@ const getCareMessage = (weather: WeatherData): { message: string; emoji: string;
         };
     } else if (weather.condition === 'cold' || weather.temp <= 20) {
         return {
-            message: "Brr! It's cold today. Bundle up, my love! 🧥",
+            message: "Brr! It's cold today. Bundle up! 🧥",
             emoji: "🥶",
             tips: [
                 "Wear warm clothes!",
@@ -84,7 +84,7 @@ const getCareMessage = (weather: WeatherData): { message: string; emoji: string;
 
 const WeatherIcon = ({ type }: { type: string }) => {
     switch (type) {
-        case 'sun': return <Sun className="w-12 h-12 text-yellow-400" />;
+        case 'sun': return <Sun className="w-12 h-12 text-[#BFA054]" />;
         case 'rain': return <CloudRain className="w-12 h-12 text-blue-400" />;
         case 'cold': return <Snowflake className="w-12 h-12 text-cyan-400" />;
         default: return <Cloud className="w-12 h-12 text-gray-400" />;
@@ -130,10 +130,10 @@ export default function WeatherCare() {
                     <span className="text-4xl">{care.emoji}</span>
                 </div>
 
-                <div className="bg-gradient-to-r from-pink-500/20 to-purple-500/20 rounded-xl p-4 mb-4">
+                <div className="bg-gradient-to-r from-[#9A2143]/10 to-[#BFA054]/10 rounded-xl p-4 mb-4 border border-[#BFA054]/10">
                     <div className="flex items-center gap-2 mb-2">
-                        <Heart className="w-5 h-5 text-pink-400" />
-                        <span className="font-semibold">Shaker says:</span>
+                        <Heart className="w-5 h-5 text-[#9A2143]" />
+                        <span className="font-semibold">Care Tip:</span>
                     </div>
                     <p className="text-sm">{care.message}</p>
                 </div>

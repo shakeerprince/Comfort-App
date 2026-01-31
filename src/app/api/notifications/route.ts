@@ -1,64 +1,73 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sql, initDatabase } from '@/lib/db';
+import { auth } from '@/lib/auth';
+import { sql, initDatabase, generateId, getCoupleByUserId, getPartnerInfo, getCustomLoveMessages } from '@/lib/db';
 
-// Personalized love messages - Shaker gets messages mentioning Keerthi
-const loveMessagesForShaker = [
-    "Hey Shaker! 💕 Keerthi's heart beats for you every second...",
-    "Shaker, your Keerthi is waiting. She loves you endlessly 🥰",
-    "Right now, somewhere, Keerthi is smiling thinking about you 🤗",
-    "Shaker, you're her safe place, her home, her everything 💖",
-    "Your Keerthi believes in you. She always will ☀️💕",
-    "Shaker, send her love. You're her favorite notification 💝",
-    "She chose you, Shaker. Every day, she'd choose you again 💑",
-    "Your girl needs to hear 'I love you' right now... go! 💘",
-    "Shaker, you make Keerthi's ordinary days extraordinary ✨",
-    "When Keerthi is scared, she thinks of you. You're her strength 🌸",
+// Default love message templates (use {partnerName} and {myName} as placeholders)
+const defaultLoveMessageTemplates = [
+    "{partnerName} is thinking about you right now... their heart aches to hold you 💕",
+    "Your {partnerName} loves you more than you'll ever know. You're their everything 🥰",
+    "Hey beautiful... {partnerName} just wanted you to know - you're the reason their heart beats 💓",
+    "{myName}, {partnerName} is counting every second until they can see you again 💘",
+    "You know what? {partnerName} would cross oceans for you. They'd do anything to see you happy 🌊💕",
+    "{partnerName} falls in love with you a little more every single day. You're their miracle 💝",
+    "When {partnerName} imagines their future, you're in every single frame 🎬💕",
+    "The way {partnerName} looks at you when you're not watching? That's pure, infinite love 👀💕",
+    "You are irreplaceable. To {partnerName}, you're the only one who matters 🌹",
+    "{partnerName}'s heart whispers your name with every beat. {myName}. {myName}. {myName}. 💓",
+    "Right now, somewhere, {partnerName} is smiling thinking about you 🤗",
+    "{myName}, you're {partnerName}'s safe place, their home, their everything 💖",
+    "{partnerName} chose you. Every day, they'd choose you again 💑",
+    "When {partnerName} is scared, they think of you. You're their strength 🌸",
 ];
 
-// Personalized love messages - Keerthi gets messages mentioning Shaker (DEEPLY EMOTIONAL)
-const loveMessagesForKeerthi = [
-    "Keerthi... Shaker is thinking about you right now. His heart aches to hold you 💕",
-    "Your Shaker loves you more than you'll ever know. You're his world, his universe, his everything 🥰",
-    "Hey beautiful... Shaker just wanted you to know - you're the reason his heart beats 💓",
-    "Keerthi, somewhere right now, Shaker is wishing he could wrap his arms around you and never let go 🤗",
-    "You know what Shaker's biggest fear is? Losing you. That's how much you mean to him 💖",
-    "Keerthi... when Shaker sees your smile, nothing else matters. You light up his entire world ✨",
-    "Your Shaker would cross oceans for you. He'd do anything to see you happy 🌊💕",
-    "Hey my love... Shaker is counting every second until he can see you again 💘",
-    "Keerthi, you're not just his girlfriend - you're his best friend, his soulmate, his forever person 💑",
-    "Shaker needs you to know something: On his worst days, just thinking about you makes everything better 🌸",
-    "Your Shaker falls in love with you a little more every single day. You're his miracle 💝",
-    "Keerthi... the way Shaker looks at you when you're not watching? That's pure, infinite love 👀💕",
-    "You are irreplaceable. To Shaker, you're the only one who matters. Always remember that 🌹",
-    "Shaker's heart whispers your name with every beat. Keerthi. Keerthi. Keerthi. 💓",
-    "When Shaker imagines his future, you're in every single frame. He can't picture life without you 🎬💕",
-];
+function replacePlaceholders(message: string, myName: string, partnerName: string): string {
+    return message
+        .replace(/{myName}/g, myName)
+        .replace(/{partnerName}/g, partnerName);
+}
 
 export async function GET(request: NextRequest) {
-    if (!sql) {
-        return NextResponse.json({ notifications: [] });
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const userRole = searchParams.get('user');
-
-    if (!userRole) {
-        return NextResponse.json({ error: 'User required' }, { status: 400 });
+    if (!sql) {
+        return NextResponse.json({ notifications: [] });
     }
 
     try {
         await initDatabase();
 
+        const couple = await getCoupleByUserId(session.user.id);
+
+        if (!couple) {
+            return NextResponse.json({ notifications: [], paired: false });
+        }
+
         // Get unread notifications for this user
         const notifications = await sql`
-            SELECT id, from_user, type, message, timestamp, read
-            FROM notifications
-            WHERE to_user = ${userRole} AND read = false
-            ORDER BY timestamp DESC
+            SELECT n.id, n.from_user_id, n.type, n.message, n.timestamp, n.read,
+                   u.name as from_user_name
+            FROM notifications n
+            LEFT JOIN users u ON n.from_user_id = u.id
+            WHERE n.couple_id = ${couple.id} AND n.to_user_id = ${session.user.id} AND n.read = false
+            ORDER BY n.timestamp ASC
             LIMIT 20
         `;
 
-        return NextResponse.json({ notifications });
+        return NextResponse.json({
+            notifications: notifications.map(n => ({
+                id: n.id,
+                fromUserId: n.from_user_id,
+                fromUserName: n.from_user_name,
+                type: n.type,
+                message: n.message,
+                timestamp: Number(n.timestamp),
+                read: n.read
+            }))
+        });
     } catch (error) {
         console.error('Error fetching notifications:', error);
         return NextResponse.json({ notifications: [] });
@@ -66,49 +75,73 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     if (!sql) {
         return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     }
 
     try {
         await initDatabase();
-        const { from, to, type, timestamp } = await request.json();
 
-        // Generate personalized message based on type and recipient
-        let message = '';
-        const isForKeerthi = to === 'keerthi';
+        const couple = await getCoupleByUserId(session.user.id);
 
-        switch (type) {
-            case 'hug':
-                message = isForKeerthi
-                    ? "Shaker just sent you the warmest hug! 🤗💕 He loves you so much!"
-                    : "Keerthi just sent you a big hug! 🤗💕 She's thinking of you!";
-                break;
-            case 'pain':
-                message = isForKeerthi
-                    ? "Keerthi, Shaker knows you're not feeling well 💝 He's here for you always!"
-                    : "Shaker! Keerthi logged some pain... She needs your comfort and love 💝";
-                break;
-            case 'craving':
-                message = isForKeerthi
-                    ? "Keerthi, Shaker saw you're craving something! He'll make it happen 🍫💕"
-                    : "Shaker! Your Keerthi is having cravings! Time to be her hero 🍫💕";
-                break;
-            case 'love':
-                const messages = isForKeerthi ? loveMessagesForKeerthi : loveMessagesForShaker;
-                message = messages[Math.floor(Math.random() * messages.length)];
-                break;
-            default:
-                message = isForKeerthi
-                    ? 'Hey Keerthi! Shaker has something for you 💕'
-                    : 'Hey Shaker! Keerthi has something for you 💕';
+        if (!couple || !couple.partner2_id) {
+            return NextResponse.json({ error: 'You need to be paired to send notifications' }, { status: 400 });
         }
 
-        const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const { type } = await request.json();
+
+        const partner = await getPartnerInfo(couple.id, session.user.id);
+        if (!partner) {
+            return NextResponse.json({ error: 'Partner not found' }, { status: 404 });
+        }
+
+        const myName = session.user.name || 'Your partner';
+        const partnerName = partner.name || 'Your love';
+
+        // Generate message based on type
+        let message = '';
+        switch (type) {
+            case 'hug':
+                message = `${myName} just sent you the warmest hug! 🤗💕 They love you so much!`;
+                break;
+            case 'pain':
+                message = `${myName} knows you're not feeling well 💝 They're here for you always!`;
+                break;
+            case 'craving':
+                message = `${myName} saw you're craving something! They'll make it happen 🍫💕`;
+                break;
+            case 'love':
+                // Get custom messages first, fall back to templates
+                const customMessages = await getCustomLoveMessages(couple.id, partner.id);
+                if (customMessages.length > 0) {
+                    // 50% chance to use custom message if available
+                    if (Math.random() > 0.5) {
+                        message = customMessages[Math.floor(Math.random() * customMessages.length)].message;
+                    } else {
+                        const template = defaultLoveMessageTemplates[Math.floor(Math.random() * defaultLoveMessageTemplates.length)];
+                        message = replacePlaceholders(template, partnerName, myName);
+                    }
+                } else {
+                    const template = defaultLoveMessageTemplates[Math.floor(Math.random() * defaultLoveMessageTemplates.length)];
+                    message = replacePlaceholders(template, partnerName, myName);
+                }
+                break;
+            default:
+                message = `${myName} has something for you 💕`;
+        }
+
+        const id = generateId();
+        const timestamp = Date.now();
 
         await sql`
-            INSERT INTO notifications (id, from_user, to_user, type, message, timestamp, read)
-            VALUES (${id}, ${from}, ${to}, ${type}, ${message}, ${timestamp}, false)
+            INSERT INTO notifications (id, couple_id, from_user_id, from_user, to_user_id, to_user, type, message, timestamp, read)
+            VALUES (${id}, ${couple.id}, ${session.user.id}, ${myName}, ${partner.id}, ${partner.name}, ${type}, ${message}, ${timestamp}, false)
         `;
 
         return NextResponse.json({ success: true, message });
@@ -119,17 +152,28 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+    const session = await auth();
+
+    if (!session?.user?.id) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     if (!sql) {
         return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
     }
 
     try {
+        const couple = await getCoupleByUserId(session.user.id);
+        if (!couple) {
+            return NextResponse.json({ error: 'No couple found' }, { status: 404 });
+        }
+
         const { notificationId } = await request.json();
 
         await sql`
             UPDATE notifications
             SET read = true
-            WHERE id = ${notificationId}
+            WHERE id = ${notificationId} AND couple_id = ${couple.id} AND to_user_id = ${session.user.id}
         `;
 
         return NextResponse.json({ success: true });

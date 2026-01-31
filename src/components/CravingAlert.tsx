@@ -14,7 +14,7 @@ const cravings = [
     { id: 3, emoji: '🍜', label: 'Hot Soup', message: 'Warm and cozy soup!' },
     { id: 4, emoji: '🍕', label: 'Comfort Food', message: 'Your favorites coming up!' },
     { id: 5, emoji: '☕', label: 'Hot Drink', message: 'Cozy drink on the way!' },
-    { id: 6, emoji: '🧸', label: 'Cuddles', message: 'Shaker is on his way! 🏃‍♂️' },
+    { id: 6, emoji: '🧸', label: 'Cuddles', message: 'Partner is on the way! 🏃‍♂️' },
 ];
 
 interface SentRequest {
@@ -83,12 +83,12 @@ export default function CravingAlert() {
     return (
         <div ref={containerRef} className="w-full max-w-md mx-auto">
             <div className="flex items-center justify-center gap-2 mb-4">
-                <Cookie className="w-6 h-6 text-orange-400" />
+                <Cookie className="w-6 h-6 text-[#BFA054]" />
                 <h3 className="text-xl font-semibold">What are you craving?</h3>
             </div>
 
             <p className="text-sm opacity-60 text-center mb-6">
-                One tap and Shaker will know! 🚀
+                One tap and your partner will know! 🚀
             </p>
 
             {/* Craving Buttons Grid */}
@@ -98,13 +98,13 @@ export default function CravingAlert() {
                         key={craving.id}
                         data-id={craving.id}
                         onClick={() => sendRequest(craving)}
-                        className={`craving-btn btn-craving flex flex-col items-center gap-2 py-4 ${justSent === craving.id ? 'ring-2 ring-green-400' : ''
+                        className={`craving-btn btn-craving flex flex-col items-center gap-2 py-4 ${justSent === craving.id ? 'ring-2 ring-[#BFA054]' : ''
                             }`}
                     >
                         <span className="text-3xl">{craving.emoji}</span>
                         <span className="text-xs font-medium">{craving.label}</span>
                         {justSent === craving.id && (
-                            <Check className="absolute top-2 right-2 w-4 h-4 text-green-500" />
+                            <Check className="absolute top-2 right-2 w-4 h-4 text-[#BFA054]" />
                         )}
                     </button>
                 ))}
@@ -114,13 +114,13 @@ export default function CravingAlert() {
             {justSent && (
                 <div className="empathy-box mb-6 animate-bounce-in">
                     <div className="flex items-center gap-3">
-                        <Bell className="w-5 h-5 text-orange-400" />
+                        <Bell className="w-5 h-5 text-[#BFA054]" />
                         <div>
                             <p className="font-medium">
                                 {cravings.find(c => c.id === justSent)?.message}
                             </p>
                             <p className="text-sm opacity-60">
-                                Shaker has been notified 💕
+                                Partner has been notified 💕
                             </p>
                         </div>
                     </div>

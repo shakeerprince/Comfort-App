@@ -19,15 +19,15 @@ interface SOSOption {
 const sosOptions: SOSOption[] = [
     {
         emoji: "📞",
-        label: "Call Shaker NOW",
-        message: "Calling Shaker immediately...",
+        label: "Call Partner NOW",
+        message: "Calling Partner immediately...",
         color: "from-red-500 to-rose-600",
         action: "call"
     },
     {
         emoji: "😢",
         label: "Having a bad day",
-        message: "Notifying Shaker you need comfort...",
+        message: "Notifying Partner you need comfort...",
         color: "from-blue-400 to-indigo-500",
         action: "notify"
     },
@@ -41,7 +41,7 @@ const sosOptions: SOSOption[] = [
     {
         emoji: "💔",
         label: "Feeling anxious",
-        message: "Alerting Shaker that you need support...",
+        message: "Alerting Partner that you need support...",
         color: "from-purple-400 to-violet-500",
         action: "notify"
     },
@@ -53,8 +53,9 @@ export default function QuickSOS() {
     const containerRef = useRef<HTMLDivElement>(null);
     const { sendNotification } = useCouple();
 
-    // Shaker's phone number
-    const SHAKER_PHONE = "8688031427";
+    // In a real app, this should come from user settings
+    // For now we'll use a placeholder or handle it via UI
+    // const SHAKER_PHONE = "8688031427"; // Removed hardcoded number
 
     useGSAP(() => {
         if (!containerRef.current) return;
@@ -66,11 +67,12 @@ export default function QuickSOS() {
 
     const handleSOS = (option: SOSOption) => {
         if (option.action === 'call') {
-            // Initiate phone call
-            window.location.href = `tel:${SHAKER_PHONE}`;
+            // Initiate phone call - in real app, fetch partner's number
+            // window.location.href = `tel:${SHAKER_PHONE}`;
+            alert("This feature would call your partner's saved number.");
             setActionTaken(true);
         } else {
-            // Send notification to Shaker
+            // Send notification to partner
             sendNotification('hug'); // Using hug type for all SOS notifications
             setShowConfirmation(option.message);
             setActionTaken(true);
@@ -107,7 +109,7 @@ export default function QuickSOS() {
                     <span className="text-5xl mb-4 block">✓</span>
                     <h4 className="text-xl font-semibold text-green-400 mb-2">Sent!</h4>
                     <p className="opacity-70">{showConfirmation}</p>
-                    <p className="text-sm mt-3 opacity-60">Shaker will be there for you soon 💕</p>
+                    <p className="text-sm mt-3 opacity-60">Help is on the way! 💕</p>
                     <button
                         onClick={resetSOS}
                         className="mt-4 px-6 py-2 bg-green-500/20 rounded-xl text-green-400 text-sm"
@@ -143,8 +145,8 @@ export default function QuickSOS() {
                 <div className="flex items-center gap-3">
                     <Heart className="w-8 h-8 text-pink-400" />
                     <div>
-                        <p className="font-medium">Remember, Keerthi...</p>
-                        <p className="text-sm opacity-70">Shaker is always just one tap away. You&apos;re never alone. 💕</p>
+                        <p className="font-medium">Remember...</p>
+                        <p className="text-sm opacity-70">Your partner is always just one tap away. You&apos;re never alone. 💕</p>
                     </div>
                 </div>
             </div>

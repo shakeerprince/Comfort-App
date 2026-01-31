@@ -59,8 +59,8 @@ export default function MoodSlider() {
                     ease: 'elastic.out(1, 0.3)',
                 });
                 gsap.to(btn, {
-                    backgroundColor: 'rgba(236, 64, 122, 0.2)',
-                    borderColor: '#ec407a',
+                    backgroundColor: 'rgba(154, 33, 67, 0.2)',
+                    borderColor: '#9A2143',
                     duration: 0.3,
                 });
             } else {

@@ -32,12 +32,12 @@ export default function CravingsPage() {
             {/* Header */}
             <section className="section text-center mb-8">
                 <div className="flex items-center justify-center gap-3 mb-3">
-                    <Cookie className="w-8 h-8 text-amber-400" />
+                    <Cookie className="w-8 h-8 text-[#BFA054]" />
                     <h1 className="text-3xl font-bold text-gradient">Craving Something?</h1>
-                    <Cookie className="w-8 h-8 text-amber-400" />
+                    <Cookie className="w-8 h-8 text-[#BFA054]" />
                 </div>
                 <p className="text-lg opacity-70">
-                    Tell Shaker what you need! 🚀
+                    Tell your partner what you need! 🚀
                 </p>
             </section>
 
@@ -50,16 +50,16 @@ export default function CravingsPage() {
             <section className="section max-w-md mx-auto">
                 <div className="empathy-box">
                     <div className="flex items-start gap-3">
-                        <Heart className="w-5 h-5 text-pink-400 flex-shrink-0 mt-1" fill="#f472b6" />
+                        <Heart className="w-5 h-5 text-[#9A2143] flex-shrink-0 mt-1" fill="#9A2143" />
                         <div>
                             <p className="font-medium mb-2">How this works:</p>
                             <ol className="text-sm opacity-80 space-y-1 list-decimal list-inside">
                                 <li>Tap what you&apos;re craving</li>
-                                <li>Shaker gets notified instantly</li>
+                                <li>Partner gets notified instantly</li>
                                 <li>Help is on the way! 🏃‍♂️💨</li>
                             </ol>
                             <p className="text-xs opacity-60 mt-3">
-                                (Shaker monitors this very closely during your period 😊)
+                                (Your partner monitors this very closely during your period 😊)
                             </p>
                         </div>
                     </div>

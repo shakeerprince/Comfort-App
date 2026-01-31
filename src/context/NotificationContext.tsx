@@ -2,10 +2,12 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { useCouple } from './CoupleContext';
+import { useAuth } from './AuthContext';
 
 interface Notification {
     id: string;
-    from_user: string;
+    fromUserId: string;
+    fromUserName: string;
     type: string;
     message: string;
     timestamp: number;
@@ -24,33 +26,29 @@ const NotificationContext = createContext<NotificationContextType | null>(null);
 const POLL_INTERVAL = 10000; // Check every 10 seconds
 const LOVE_REMINDER_INTERVAL = 2 * 60 * 60 * 1000; // 2 hours in ms
 
-// Deeply emotional love reminders for local display
-const loveRemindersForKeerthi = [
-    "Shaker is thinking about you right now... his heart aches to hold you 💕",
-    "Your Shaker loves you more than you'll ever know. You're his everything 🥰",
-    "Hey beautiful... Shaker just wanted you to know - you're the reason his heart beats 💓",
-    "Keerthi, Shaker is counting every second until he can see you again 💘",
-    "You know what? Shaker would cross oceans for you. He'd do anything to see you happy 🌊💕",
-    "Shaker falls in love with you a little more every single day. You're his miracle 💝",
-    "When Shaker imagines his future, you're in every single frame 🎬💕",
-    "The way Shaker looks at you when you're not watching? That's pure, infinite love 👀💕",
-    "You are irreplaceable. To Shaker, you're the only one who matters 🌹",
-    "Shaker's heart whispers your name with every beat. Keerthi. Keerthi. Keerthi. 💓",
+// Love reminder templates (use {partnerName} placeholder)
+const loveReminderTemplates = [
+    "{partnerName} is thinking about you right now... 💕",
+    "Your {partnerName} loves you more than you'll ever know 🥰",
+    "Hey beautiful... {partnerName} just wanted you to know - you're amazing 💓",
+    "{partnerName} is counting every second until they can see you again 💘",
+    "{partnerName} would cross oceans for you. Always remember that 🌊💕",
+    "{partnerName} falls in love with you a little more every single day 💝",
+    "When {partnerName} imagines their future, you're in every single frame 🎬💕",
+    "You are irreplaceable. To {partnerName}, you're the only one who matters 🌹",
+    "Right now, somewhere, {partnerName} is smiling thinking about you 🤗",
+    "You're {partnerName}'s safe place, their home, their everything 💖",
 ];
 
-const loveRemindersForShaker = [
-    "Keerthi's heart beats for you every second... 💕",
-    "Your Keerthi is waiting. She loves you endlessly 🥰",
-    "Right now, somewhere, Keerthi is smiling thinking about you 🤗",
-    "Shaker, you're her safe place, her home, her everything 💖",
-    "She chose you, Shaker. Every day, she'd choose you again 💑",
-    "When Keerthi is scared, she thinks of you. You're her strength 🌸",
-];
+function replacePlaceholders(message: string, partnerName: string): string {
+    return message.replace(/{partnerName}/g, partnerName);
+}
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [permissionGranted, setPermissionGranted] = useState(false);
-    const { myRole, sendNotification } = useCouple();
+    const { sendNotification, partnerName, isPaired } = useCouple();
+    const { isAuthenticated, user } = useAuth();
 
     // Request notification permission
     useEffect(() => {
@@ -70,7 +68,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         try {
             const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
-            // Create a pleasant chime sound
             const playTone = (frequency: number, startTime: number, duration: number) => {
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
@@ -81,7 +78,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 oscillator.type = 'sine';
                 oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime + startTime);
 
-                // Fade in and out for smooth sound
                 gainNode.gain.setValueAtTime(0, audioContext.currentTime + startTime);
                 gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + startTime + 0.05);
                 gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + startTime + duration);
@@ -90,7 +86,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                 oscillator.stop(audioContext.currentTime + startTime + duration);
             };
 
-            // Play a sweet three-note chime (like a gentle notification)
+            // Play a sweet three-note chime
             playTone(523.25, 0, 0.15);      // C5
             playTone(659.25, 0.12, 0.15);   // E5
             playTone(783.99, 0.24, 0.2);    // G5
@@ -110,10 +106,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
                     badge: '/icon-192.png',
                 });
 
-                // Play custom notification sound
                 playNotificationSound();
 
-                // Vibrate if supported
                 if (navigator.vibrate) {
                     navigator.vibrate([200, 100, 200]);
                 }
@@ -125,13 +119,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     // Poll for notifications
     useEffect(() => {
+        if (!isAuthenticated || !isPaired) return;
+
         const pollNotifications = async () => {
             try {
-                const res = await fetch(`/api/notifications?user=${myRole}`);
+                const res = await fetch('/api/notifications');
                 if (res.ok) {
                     const data = await res.json();
                     if (data.notifications && data.notifications.length > 0) {
-                        // Show browser notifications for new ones
                         const newNotifs = data.notifications.filter(
                             (n: Notification) => !notifications.find(existing => existing.id === n.id)
                         );
@@ -152,26 +147,25 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         const interval = setInterval(pollNotifications, POLL_INTERVAL);
 
         return () => clearInterval(interval);
-    }, [myRole, notifications, showBrowserNotification]);
+    }, [isAuthenticated, isPaired, notifications, showBrowserNotification]);
 
     // Periodic love reminders (every 2 hours)
     useEffect(() => {
+        if (!isAuthenticated || !isPaired) return;
+
         const sendLoveReminder = () => {
-            // Send a love notification to partner
             sendNotification('love');
 
-            // Show local reminder too (role-specific emotional message)
-            const reminders = myRole === 'keerthi' ? loveRemindersForKeerthi : loveRemindersForShaker;
-            const randomMessage = reminders[Math.floor(Math.random() * reminders.length)];
+            // Show local reminder with partner's name
+            const template = loveReminderTemplates[Math.floor(Math.random() * loveReminderTemplates.length)];
+            const randomMessage = replacePlaceholders(template, partnerName);
             showBrowserNotification('Comfort App 💕', randomMessage);
         };
 
-        // Check when last reminder was sent
         const lastReminder = localStorage.getItem('comfort-last-love-reminder');
         const now = Date.now();
 
         if (!lastReminder || now - parseInt(lastReminder) > LOVE_REMINDER_INTERVAL) {
-            // Send initial reminder after 5 minutes to not be annoying on page load
             const timeout = setTimeout(() => {
                 sendLoveReminder();
                 localStorage.setItem('comfort-last-love-reminder', now.toString());
@@ -180,73 +174,13 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             return () => clearTimeout(timeout);
         }
 
-        // Setup interval for future reminders
         const interval = setInterval(() => {
             sendLoveReminder();
             localStorage.setItem('comfort-last-love-reminder', Date.now().toString());
         }, LOVE_REMINDER_INTERVAL);
 
         return () => clearInterval(interval);
-    }, [myRole, sendNotification, showBrowserNotification]);
-
-    // Period reminder notifications (daily check)
-    useEffect(() => {
-        if (myRole !== 'keerthi') return; // Only for Keerthi
-
-        const checkPeriodReminder = () => {
-            const cycleData = localStorage.getItem('comfort-cycle-data');
-            if (!cycleData) return;
-
-            try {
-                const data = JSON.parse(cycleData);
-                if (!data.lastPeriodStart) return;
-
-                const lastStart = new Date(data.lastPeriodStart);
-                const cycleLength = data.cycleLength || 28;
-                const nextPeriod = new Date(lastStart);
-                nextPeriod.setDate(nextPeriod.getDate() + cycleLength);
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const daysUntil = Math.ceil((nextPeriod.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-                // Check if we already sent a reminder today
-                const lastPeriodReminder = localStorage.getItem('comfort-last-period-reminder');
-                const todayStr = today.toISOString().split('T')[0];
-                if (lastPeriodReminder === todayStr) return;
-
-                // Send reminders based on days until period
-                if (daysUntil >= 0 && daysUntil <= 7) {
-                    let message = '';
-                    if (daysUntil === 0) {
-                        message = "Keerthi, your period might start today! 🌸 Shaker has everything ready for you 💕";
-                    } else if (daysUntil === 1) {
-                        message = "Your period may start tomorrow, Keerthi! 💕 Shaker is preparing your comfort kit 🧡";
-                    } else if (daysUntil <= 3) {
-                        message = `Your period is expected in ${daysUntil} days. Shaker is stocking up on chocolate! 🍫💕`;
-                    } else if (daysUntil <= 7) {
-                        message = `Heads up Keerthi! Your period may start in about ${daysUntil} days 📅💕`;
-                    }
-
-                    if (message) {
-                        showBrowserNotification('Period Reminder 🌸', message);
-                        localStorage.setItem('comfort-last-period-reminder', todayStr);
-                    }
-                }
-            } catch (e) {
-                console.error('Error checking period reminder:', e);
-            }
-        };
-
-        // Check on load (after 10 seconds) and then every hour
-        const initialTimeout = setTimeout(checkPeriodReminder, 10000);
-        const interval = setInterval(checkPeriodReminder, 60 * 60 * 1000);
-
-        return () => {
-            clearTimeout(initialTimeout);
-            clearInterval(interval);
-        };
-    }, [myRole, showBrowserNotification]);
+    }, [isAuthenticated, isPaired, partnerName, sendNotification, showBrowserNotification]);
 
     const markAsRead = useCallback(async (id: string) => {
         setNotifications(prev => prev.map(n =>

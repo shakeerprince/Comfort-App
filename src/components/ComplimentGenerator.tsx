@@ -14,7 +14,7 @@ const compliments = [
     "You make everything better just by being you 🌸",
     "Your smile could light up the entire universe 🌟",
     "I fall more in love with you every single day 💖",
-    "You're not just my girlfriend, you're my best friend 💑",
+    "You're not just my partner, you're my best friend 💑",
     "Every moment with you is a treasure 💎",
     "You're the reason I believe in soulmates 💫",
     "Your kindness makes the world a better place 🌍",
@@ -22,7 +22,7 @@ const compliments = [
     "You're stronger than you know, and I'm so proud of you 💪",
     "Your hugs are my safe place 🤗",
     "You're my favorite notification 📱💕",
-    "Nothing compares to you, Keerthi 👑",
+    "Nothing compares to you 👑",
     "You're the best thing that ever happened to me 🎁",
     "I love the way your eyes light up when you're happy ✨",
     "You deserve all the happiness in the world 🌈",
@@ -140,7 +140,7 @@ export default function ComplimentGenerator() {
         >
             <div className="flex items-center justify-center gap-2 mb-4">
                 <Sparkles className="w-5 h-5 text-yellow-400" />
-                <span className="text-sm font-medium opacity-70">For Keerthi</span>
+                <span className="text-sm font-medium opacity-70">For You</span>
                 <Sparkles className="w-5 h-5 text-yellow-400" />
             </div>
 

@@ -76,7 +76,7 @@ export default function SOSButton() {
                 if (i === index) {
                     gsap.to(card, {
                         scale: 1.1,
-                        backgroundColor: 'rgba(236, 64, 122, 0.3)',
+                        backgroundColor: 'rgba(154, 33, 67, 0.3)', // Burgundy
                         duration: 0.3,
                         ease: 'back.out(1.7)',
                     });

@@ -177,8 +177,8 @@ export default function TrackerPage() {
         if (daysUntil === null) return null;
         if (daysUntil <= 0) return "Your period might start today or very soon! 🌸";
         if (daysUntil === 1) return "Your period may start tomorrow! 💕";
-        if (daysUntil <= 3) return `Period in ${daysUntil} days - Shaker is preparing your comfort kit! 🧡`;
-        if (daysUntil <= 7) return `About ${daysUntil} days until your period. Shaker will stock up on chocolate! 🍫`;
+        if (daysUntil <= 3) return `Period in ${daysUntil} days - Your partner is preparing your comfort kit! 🧡`;
+        if (daysUntil <= 7) return `About ${daysUntil} days until your period. Your partner will stock up on chocolate! 🍫`;
         return null;
     };
 
@@ -193,7 +193,7 @@ export default function TrackerPage() {
                     <h1 className="text-3xl font-bold text-gradient">Period Tracker</h1>
                 </div>
                 <p className="text-lg opacity-70">
-                    Track & predict your cycle, Keerthi 📅
+                    Track & predict your cycle 📅
                 </p>
             </section>
 
@@ -222,7 +222,7 @@ export default function TrackerPage() {
                             <div className="mt-4 p-3 bg-pink-100 dark:bg-pink-900/30 rounded-xl flex items-center justify-center gap-2">
                                 <Heart className="w-4 h-4 text-pink-500" />
                                 <span className="text-sm text-pink-600 dark:text-pink-300">
-                                    Shaker is ready to pamper you! 💕
+                                    Your partner is ready to pamper you! 💕
                                 </span>
                             </div>
                         )}
@@ -248,7 +248,7 @@ export default function TrackerPage() {
                     onClick={markPeriodStart}
                     className={`w-full py-4 rounded-2xl font-semibold text-lg transition-all active:scale-95 ${periodStarted
                         ? 'bg-green-500 text-white'
-                        : 'bg-gradient-to-r from-rose-400 to-pink-500 text-white hover:opacity-90'
+                        : 'bg-gradient-to-r from-[#9A2143] to-[#721832] text-white hover:opacity-90'
                         }`}
                 >
                     {periodStarted ? '✓ Period Started - Logged!' : '🩸 Period Started Today'}
@@ -299,7 +299,7 @@ export default function TrackerPage() {
                                 key={day}
                                 className={`h-10 flex items-center justify-center rounded-full text-sm font-medium transition-all
                                     ${isPeriod
-                                        ? 'bg-gradient-to-br from-rose-400 to-pink-500 text-white'
+                                        ? 'bg-gradient-to-br from-[#9A2143] to-[#721832] text-white'
                                         : isPredicted
                                             ? 'bg-pink-200/50 dark:bg-pink-800/30 border-2 border-dashed border-pink-400'
                                             : todayCheck

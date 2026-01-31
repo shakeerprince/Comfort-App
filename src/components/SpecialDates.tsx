@@ -14,15 +14,15 @@ interface SpecialDate {
 const defaultSpecialDates: SpecialDate[] = [
     {
         id: '1',
-        name: "Keerthi's Birthday",
-        date: '2024-11-13',
+        name: "Partner's Birthday",
+        date: '2024-01-01',
         emoji: '🎂',
         isRecurring: true,
     },
     {
         id: '2',
-        name: "Shaker's Birthday",
-        date: '2024-04-30',
+        name: "Anniversary",
+        date: '2024-02-14',
         emoji: '🎉',
         isRecurring: true,
     },

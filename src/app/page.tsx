@@ -2,17 +2,18 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import VibeDashboard from '@/components/VibeDashboard';
-import RoleSelector from '@/components/RoleSelector';
 import PersonalMessages from '@/components/PersonalMessages';
 import DailyLoveLetter from '@/components/DailyLoveLetter';
 import SpecialDatesCountdown from '@/components/SpecialDatesCountdown';
 import ComfortPlaylist from '@/components/ComfortPlaylist';
 import WeatherCare from '@/components/WeatherCare';
 import { useCouple } from '@/context/CoupleContext';
-import { Heart, Sparkles, ArrowRight, Camera, Smile, AlertTriangle, Brain, Calendar } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { Heart, Sparkles, ArrowRight, Users } from 'lucide-react';
 
 gsap.registerPlugin(useGSAP);
 
@@ -81,29 +82,20 @@ function getGreeting(): { greeting: string; emoji: string } {
 }
 
 export default function Home() {
-  const [hasSelectedRole, setHasSelectedRole] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const { myRole, partnerRole } = useCouple();
+  const { isAuthenticated, isLoading: authLoading, user, isPaired } = useAuth();
+  const { myName, partnerName } = useCouple();
   const mainRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const [greeting, setGreeting] = useState({ greeting: 'Hello', emoji: '💕' });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check if role was previously selected
-    const saved = localStorage.getItem('cozycycle-couple');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.myRole) {
-          setHasSelectedRole(true);
-        }
-      } catch (e) { }
-    }
-    setIsLoading(false);
+    setMounted(true);
     setGreeting(getGreeting());
   }, []);
 
   useGSAP(() => {
-    if (!mainRef.current || !hasSelectedRole) return;
+    if (!mainRef.current || !mounted || authLoading) return;
 
     const sections = mainRef.current.querySelectorAll('.section');
     gsap.fromTo(sections,
@@ -116,9 +108,9 @@ export default function Home() {
         ease: 'power2.out',
       }
     );
-  }, { scope: mainRef, dependencies: [hasSelectedRole] });
+  }, { scope: mainRef, dependencies: [mounted, authLoading, isAuthenticated] });
 
-  if (isLoading) {
+  if (authLoading || !mounted) {
     return (
       <main className="flex-1 flex items-center justify-center">
         <div className="text-center">
@@ -129,39 +121,101 @@ export default function Home() {
     );
   }
 
-  if (!hasSelectedRole) {
-    return <RoleSelector onSelect={() => setHasSelectedRole(true)} />;
+  // Not authenticated - show welcome screen
+  if (!isAuthenticated) {
+    return (
+      <main className="flex-1 flex items-center justify-center px-4">
+        <div className="text-center max-w-lg">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-[#9A2143] to-[#721832] mb-6 shadow-lg shadow-[#9A2143]/30">
+            <Heart className="w-12 h-12 text-white" fill="white" />
+          </div>
+          <h1 className="text-4xl font-bold text-gradient mb-4">Comfort App 💕</h1>
+          <p className="text-lg opacity-70 mb-8">
+            A warm, supportive app for couples. Connect, share moments, and care for each other every day.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/login" className="btn-primary px-8 py-3 inline-flex items-center justify-center gap-2">
+              Sign In
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link href="/register" className="btn-secondary px-8 py-3">
+              Create Account
+            </Link>
+          </div>
+          <div className="mt-10 opacity-60">
+            <div className="inline-flex items-center gap-2 text-sm">
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+              <span>Private chat • Location sharing • Mood tracking • Memories</span>
+              <Sparkles className="w-4 h-4 text-yellow-400" />
+            </div>
+          </div>
+        </div>
+      </main>
+    );
   }
 
-  const partnerDisplayName = partnerRole === 'keerthi' ? 'Keerthi' : 'Shaker';
+  // Authenticated but not paired - prompt to pair
+  if (!isPaired) {
+    return (
+      <main className="flex-1 flex items-center justify-center px-4">
+        <div className="text-center max-w-lg">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 mb-6 shadow-lg shadow-purple-500/30">
+            <Users className="w-12 h-12 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gradient mb-3">
+            Welcome, {myName}! 👋
+          </h1>
+          <p className="text-lg opacity-70 mb-8">
+            Connect with your partner to start using Comfort App together.
+          </p>
+          <Link href="/pair" className="btn-primary px-8 py-3 inline-flex items-center gap-2">
+            Connect with Partner
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
+  // Fully authenticated and paired - show main app
   return (
     <main ref={mainRef} className="flex-1 px-6 py-8 space-y-6">
       {/* Personalized Greeting */}
-      <section className="section text-center">
-        <div className="inline-flex items-center gap-2 mb-2">
-          <span className="text-3xl">{greeting.emoji}</span>
-          <h1 className="text-3xl font-bold text-gradient">
-            {greeting.greeting}, {myRole === 'keerthi' ? 'Keerthi' : 'Shaker'}!
-          </h1>
-          <span className="text-3xl">💕</span>
+      <section className="section flex items-center justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2 mb-1">
+            <span className="text-2xl">{greeting.emoji}</span>
+            <h1 className="text-2xl font-bold text-gradient">
+              {greeting.greeting}, {myName}!
+            </h1>
+          </div>
+          <p className="text-sm opacity-70 font-medium tracking-wide">Stay connected with {partnerName} 💕</p>
         </div>
-        <p className="text-lg opacity-70">Stay connected with {partnerDisplayName}, always</p>
+        <Link href="/profile" className="relative group">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#BFA054] to-[#8F763B] p-0.5 shadow-md group-hover:scale-105 transition-transform">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+              {user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-lg font-bold text-pink-500">{myName.charAt(0).toUpperCase()}</span>
+              )}
+            </div>
+          </div>
+        </Link>
       </section>
 
-      {/* Daily Love Letter - For Keerthi only */}
-      {myRole === 'keerthi' && (
-        <section className="section max-w-md mx-auto">
-          <DailyLoveLetter />
-        </section>
-      )}
+      {/* Daily Love Letter */}
+      <section className="section max-w-md mx-auto">
+        <DailyLoveLetter />
+      </section>
 
       {/* Weather Care */}
       <section className="section max-w-md mx-auto">
         <WeatherCare />
       </section>
 
-      {/* Personal Message from Shaker */}
+      {/* Personal Message from Partner */}
       <section className="section max-w-md mx-auto">
         <PersonalMessages />
       </section>

@@ -7,18 +7,21 @@ import 'leaflet/dist/leaflet.css';
 interface LocationMapProps {
     myLocation: { lat: number; lng: number } | null;
     partnerLocation: { lat: number; lng: number } | null;
-    myRole: string;
-    partnerRole: string;
+    myName: string;
+    partnerName: string;
 }
 
-export default function LocationMap({ myLocation, partnerLocation, myRole, partnerRole }: LocationMapProps) {
+export default function LocationMap({ myLocation, partnerLocation, myName, partnerName }: LocationMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const myMarkerRef = useRef<L.Marker | null>(null);
     const partnerMarkerRef = useRef<L.Marker | null>(null);
     const lineRef = useRef<L.Polyline | null>(null);
 
-    const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+    const capitalize = (s: string | null | undefined) => {
+        if (!s) return 'User';
+        return s.charAt(0).toUpperCase() + s.slice(1);
+    };
 
     // Create custom icons
     const createIcon = (emoji: string, color: string) => {
@@ -74,10 +77,12 @@ export default function LocationMap({ myLocation, partnerLocation, myRole, partn
         if (!mapInstanceRef.current) return;
 
         const map = mapInstanceRef.current;
-        const myEmoji = myRole === 'keerthi' ? '👸' : '🤴';
-        const partnerEmoji = partnerRole === 'keerthi' ? '👸' : '🤴';
-        const myColor = myRole === 'keerthi' ? '#f472b6' : '#60a5fa';
-        const partnerColor = partnerRole === 'keerthi' ? '#f472b6' : '#60a5fa';
+        // Generic emojis based on role or fallback
+        const myEmoji = '👤';
+        const partnerEmoji = '❤️';
+
+        const myColor = '#60a5fa'; // Blue
+        const partnerColor = '#f472b6'; // Pink
 
         // Update my marker
         if (myLocation) {
@@ -88,7 +93,7 @@ export default function LocationMap({ myLocation, partnerLocation, myRole, partn
                     icon: createIcon(myEmoji, myColor),
                 })
                     .addTo(map)
-                    .bindPopup(`<b>You (${capitalize(myRole)})</b>`);
+                    .bindPopup(`<b>You (${capitalize(myName)})</b>`);
             }
         }
 
@@ -101,7 +106,7 @@ export default function LocationMap({ myLocation, partnerLocation, myRole, partn
                     icon: createIcon(partnerEmoji, partnerColor),
                 })
                     .addTo(map)
-                    .bindPopup(`<b>${capitalize(partnerRole)}</b>`);
+                    .bindPopup(`<b>${capitalize(partnerName)}</b>`);
             }
         }
 
@@ -138,7 +143,7 @@ export default function LocationMap({ myLocation, partnerLocation, myRole, partn
         } else if (partnerLocation) {
             map.setView([partnerLocation.lat, partnerLocation.lng], 15);
         }
-    }, [myLocation, partnerLocation, myRole, partnerRole]);
+    }, [myLocation, partnerLocation, myName, partnerName]);
 
     return (
         <div

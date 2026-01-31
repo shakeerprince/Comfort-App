@@ -13,7 +13,7 @@ const painResponses = [
     { level: 2, emoji: '🙂', message: "Just a little uncomfortable. You've got this!" },
     { level: 3, emoji: '😐', message: "Mild discomfort. Take it easy, okay?" },
     { level: 4, emoji: '😕', message: "I see you're uncomfortable. Sending hugs 🤗" },
-    { level: 5, emoji: '😣', message: "Halfway there. You're doing so well, Keerthi" },
+    { level: 5, emoji: '😣', message: "Halfway there. You're doing so well!" },
     { level: 6, emoji: '😢', message: "I wish I could take this pain away 💕" },
     { level: 7, emoji: '😥', message: "You're so strong. I'm proud of you 💪" },
     { level: 8, emoji: '😭', message: "I'm here with you. You're not alone ❤️" },
@@ -67,7 +67,7 @@ export default function PainTracker() {
         <div ref={containerRef} className="w-full max-w-md mx-auto">
             <div className="text-center mb-6">
                 <p className="text-lg opacity-80 mb-2">
-                    How are you feeling right now, Keerthi?
+                    How are you feeling right now?
                 </p>
                 <p className="text-sm opacity-60">
                     Be honest - there&apos;s no judgment here 💕
@@ -107,7 +107,7 @@ export default function PainTracker() {
                     <Heart className="w-5 h-5 text-pink-400 flex-shrink-0 mt-0.5" fill="#f472b6" />
                     <div>
                         <p className="font-medium text-lg">{currentResponse.message}</p>
-                        <p className="text-sm opacity-60 mt-1">- Shaker 💕</p>
+                        <p className="text-sm opacity-60 mt-1">- Your Partner 💕</p>
                     </div>
                 </div>
             </div>
@@ -119,13 +119,18 @@ export default function PainTracker() {
                         High pain detected 💔
                     </p>
                     <p className="text-sm text-red-500 dark:text-red-400 mt-1">
-                        Please take your medicine if needed. Should I alert Shaker?
+                        Please take your medicine if needed. Should I alert your partner?
                     </p>
                     <a
-                        href="tel:8688031427"
+                        href="#"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            sendNotification('pain');
+                            alert('Notification sent to partner!');
+                        }}
                         className="mt-3 px-6 py-2 bg-red-500 text-white rounded-full text-sm font-medium hover:bg-red-600 transition-colors inline-block"
                     >
-                        📞 Call Shaker Now
+                        📞 Alert Partner Now
                     </a>
                 </div>
             )}

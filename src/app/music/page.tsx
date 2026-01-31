@@ -11,7 +11,7 @@ const playlists = [
     {
         id: 'softpop',
         title: 'Soft Pop Hits 🎵',
-        description: 'Keerthi\'s special playlist',
+        description: 'Special playlist for you',
         spotifyId: '37i9dQZF1DX44F1QWqYoaV', // User's playlist
         emoji: '💖',
         color: 'from-pink-500 to-rose-500',
@@ -201,17 +201,16 @@ export default function MusicPage() {
                 </div>
             </section>
 
-            {/* Shaker's Note */}
+            {/* Partner's Note */}
             <section className="section max-w-md mx-auto mt-8">
                 <div className="empathy-box">
                     <div className="flex items-start gap-3">
                         <Heart className="w-5 h-5 text-pink-400 flex-shrink-0 mt-1" fill="#f472b6" />
                         <div>
                             <p className="text-sm">
-                                Put on some music, close your eyes, and let me know if you need anything.
-                                I&apos;m always here for you, Keerthi. 💕
+                                Put on some music, close your eyes, and let your partner know if you need anything.
+                                We&apos;re here for you. 💕
                             </p>
-                            <p className="text-xs opacity-50 mt-2">- Shaker</p>
                         </div>
                     </div>
                 </div>

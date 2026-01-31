@@ -1,6 +1,10 @@
 # CozyCycle - Comfort App 💕
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-comfort--app--seven.vercel.app-blueviolet?style=for-the-badge)](https://comfort-app-seven.vercel.app)
+
 A beautiful couples' comfort app built to help you and your partner stay connected, especially during those special times when you need extra care.
+
+> 🌐 **Live Demo:** [https://comfort-app-seven.vercel.app](https://comfort-app-seven.vercel.app)
 
 ## ✨ Features
 

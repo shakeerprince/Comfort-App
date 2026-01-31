@@ -204,7 +204,7 @@ export default function LoveLanguageQuiz() {
                     <div className="bg-white/10 rounded-xl p-4 text-left mb-6">
                         <p className="font-semibold mb-3 flex items-center gap-2">
                             <Heart className="w-4 h-4 text-pink-400" />
-                            How Shaker can show you love:
+                            How your partner can show you love:
                         </p>
                         <ul className="space-y-2">
                             {language.tips.map((tip, index) => (

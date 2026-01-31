@@ -116,10 +116,10 @@ export default function BreathingCircle() {
 
     const getPhaseColor = () => {
         switch (currentPhase) {
-            case 'inhale': return 'from-blue-400 to-cyan-300';
-            case 'hold': return 'from-purple-400 to-pink-300';
-            case 'exhale': return 'from-green-400 to-teal-300';
-            default: return 'from-pink-400 to-purple-400';
+            case 'inhale': return 'from-[#1E2742] to-[#2D3A5E]'; // Royal Blue
+            case 'hold': return 'from-[#BFA054] to-[#E3C578]';   // Royal Gold
+            case 'exhale': return 'from-[#9A2143] to-[#C44569]'; // Royal Red
+            default: return 'from-[#BFA054]/50 to-[#9A2143]/50';
         }
     };
 
@@ -129,7 +129,7 @@ export default function BreathingCircle() {
             className="w-full max-w-md mx-auto flex flex-col items-center gap-8"
         >
             <div className="flex items-center gap-2 text-lg">
-                <Wind className="w-5 h-5 text-blue-400" />
+                <Wind className="w-5 h-5 text-[#BFA054]" />
                 <span>Breathing Exercise</span>
             </div>
 

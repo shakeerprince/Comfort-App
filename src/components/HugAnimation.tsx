@@ -13,12 +13,12 @@ interface HugAnimationProps {
     onHugSent?: () => void;
 }
 
-export default function HugAnimation({ partnerName = 'Keerthi', onHugSent }: HugAnimationProps) {
+export default function HugAnimation({ partnerName = 'Partner', onHugSent }: HugAnimationProps) {
     const [isHugging, setIsHugging] = useState(false);
     const [hugCount, setHugCount] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
     const heartRef = useRef<HTMLDivElement>(null);
-    const { sendNotification, partnerRole } = useCouple();
+    const { sendNotification } = useCouple();
 
     useGSAP(() => {
         if (!containerRef.current) return;

@@ -2,12 +2,13 @@
 
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { Menu, X, Home, Flame, Cookie, MessageCircle, Calendar, MapPin, Music, MessageSquare, Camera, Heart, Palette, Bell } from 'lucide-react';
+import { Menu, X, Home, Flame, Cookie, MessageSquare, Calendar, MapPin, Music, Camera, Heart, Palette, Bell, User, LogOut, Settings } from 'lucide-react';
 import { useTheme, themes, ThemeType } from '@/context/ThemeContext';
 import { useNotifications } from '@/context/NotificationContext';
+import { useAuth } from '@/context/AuthContext';
 
 gsap.registerPlugin(useGSAP);
 
@@ -27,11 +28,14 @@ export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [showThemes, setShowThemes] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const pathname = usePathname();
+    const router = useRouter();
     const navRef = useRef<HTMLElement>(null);
     const logoRef = useRef<HTMLAnchorElement>(null);
     const { theme, setTheme, themeConfig } = useTheme();
     const { notifications, unreadCount, markAsRead, clearAll } = useNotifications();
+    const { user, partner, isAuthenticated, isPaired, logout } = useAuth();
 
     useGSAP(() => {
         if (!logoRef.current) return;
@@ -49,6 +53,7 @@ export default function Navbar() {
     const closeMenu = () => setIsOpen(false);
     const notificationRef = useRef<HTMLDivElement>(null);
     const themeRef = useRef<HTMLDivElement>(null);
+    const userMenuRef = useRef<HTMLDivElement>(null);
 
     // Close dropdowns when clicking outside
     useEffect(() => {
@@ -58,6 +63,9 @@ export default function Navbar() {
             }
             if (themeRef.current && !themeRef.current.contains(e.target as Node)) {
                 setShowThemes(false);
+            }
+            if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+                setShowUserMenu(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -71,6 +79,16 @@ export default function Navbar() {
         if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
         return new Date(timestamp).toLocaleDateString();
     };
+
+    const handleLogout = async () => {
+        await logout();
+        router.push('/login');
+    };
+
+    // Hide nav on login/register pages
+    if (['/login', '/register'].includes(pathname)) {
+        return null;
+    }
 
     return (
         <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50">
@@ -89,81 +107,86 @@ export default function Navbar() {
 
                     {/* Desktop Navigation */}
                     <div className="hidden lg:flex items-center gap-4">
-                        {navLinks.slice(0, 6).map((link) => {
+                        {isAuthenticated && isPaired && navLinks.slice(0, 6).map((link) => {
                             const isActive = pathname === link.href;
                             return (
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`relative flex items-center gap-1.5 text-sm font-medium transition-all hover:text-cozy ${isActive ? 'text-cozy' : 'opacity-70'
+                                    className={`relative flex items-center gap-1.5 text-sm font-medium transition-all hover:text-primary ${isActive ? 'text-primary' : 'opacity-70'
                                         }`}
                                 >
-                                    <link.icon className="w-4 h-4" />
+                                    <link.icon className={`w-4 h-4 ${isActive ? 'fill-current' : ''}`} />
                                     {link.label}
                                     {isActive && (
-                                        <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full" />
+                                        <span className="absolute -bottom-2 left-0 right-0 h-0.5 bg-gradient-to-r from-royal-gold to-royal-red rounded-full" />
                                     )}
                                 </Link>
                             );
                         })}
 
-                        {/* Notification Bell */}
-                        <div ref={notificationRef} className="relative">
-                            <button
-                                onClick={() => {
-                                    setShowNotifications(!showNotifications);
-                                    setShowThemes(false);
-                                }}
-                                className="relative p-2 rounded-xl hover:bg-white/10 transition-colors"
-                            >
-                                <Bell className="w-5 h-5" />
-                                {unreadCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-pink-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse">
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
-
-                            {/* Notification Dropdown */}
-                            {showNotifications && (
-                                <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto glass-card rounded-xl shadow-2xl">
-                                    <div className="p-3 border-b border-white/10 flex items-center justify-between">
-                                        <h3 className="font-semibold">Notifications</h3>
-                                        {notifications.length > 0 && (
-                                            <button
-                                                onClick={clearAll}
-                                                className="text-xs text-pink-400 hover:text-pink-300"
-                                            >
-                                                Clear all
-                                            </button>
+                        {isAuthenticated && isPaired && (
+                            <>
+                                {/* Notification Bell */}
+                                <div ref={notificationRef} className="relative">
+                                    <button
+                                        onClick={() => {
+                                            setShowNotifications(!showNotifications);
+                                            setShowThemes(false);
+                                            setShowUserMenu(false);
+                                        }}
+                                        className="relative p-2 rounded-xl hover:bg-white/10 transition-colors"
+                                    >
+                                        <Bell className="w-5 h-5" />
+                                        {unreadCount > 0 && (
+                                            <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#9A2143] text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse">
+                                                {unreadCount > 9 ? '9+' : unreadCount}
+                                            </span>
                                         )}
-                                    </div>
+                                    </button>
 
-                                    {notifications.length === 0 ? (
-                                        <div className="p-6 text-center opacity-60">
-                                            <Bell className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                                            <p className="text-sm">No notifications yet</p>
-                                            <p className="text-xs mt-1">Love reminders will appear here 💕</p>
-                                        </div>
-                                    ) : (
-                                        <div className="divide-y divide-white/5">
-                                            {notifications.map((notif) => (
-                                                <div
-                                                    key={notif.id}
-                                                    onClick={() => markAsRead(notif.id)}
-                                                    className={`p-3 hover:bg-white/5 cursor-pointer transition-colors ${!notif.read ? 'bg-pink-500/10' : ''}`}
-                                                >
-                                                    <p className="text-sm">{notif.message}</p>
-                                                    <p className="text-xs opacity-50 mt-1">
-                                                        {formatTime(notif.timestamp)}
-                                                    </p>
+                                    {/* Notification Dropdown */}
+                                    {showNotifications && (
+                                        <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto glass-card rounded-xl shadow-2xl">
+                                            <div className="p-3 border-b border-white/10 flex items-center justify-between">
+                                                <h3 className="font-semibold">Notifications</h3>
+                                                {notifications.length > 0 && (
+                                                    <button
+                                                        onClick={clearAll}
+                                                        className="text-xs text-pink-400 hover:text-pink-300"
+                                                    >
+                                                        Clear all
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            {notifications.length === 0 ? (
+                                                <div className="p-6 text-center opacity-60">
+                                                    <Bell className="w-8 h-8 mx-auto mb-2 opacity-40" />
+                                                    <p className="text-sm">No notifications yet</p>
+                                                    <p className="text-xs mt-1">Love reminders will appear here 💕</p>
                                                 </div>
-                                            ))}
+                                            ) : (
+                                                <div className="divide-y divide-white/5">
+                                                    {notifications.map((notif) => (
+                                                        <div
+                                                            key={notif.id}
+                                                            onClick={() => markAsRead(notif.id)}
+                                                            className={`p-3 hover:bg-white/5 cursor-pointer transition-colors ${!notif.read ? 'bg-pink-500/10' : ''}`}
+                                                        >
+                                                            <p className="text-sm">{notif.message}</p>
+                                                            <p className="text-xs opacity-50 mt-1">
+                                                                {formatTime(notif.timestamp)}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        )}
 
                         {/* Theme Switcher */}
                         <div ref={themeRef} className="relative">
@@ -171,6 +194,7 @@ export default function Navbar() {
                                 onClick={() => {
                                     setShowThemes(!showThemes);
                                     setShowNotifications(false);
+                                    setShowUserMenu(false);
                                 }}
                                 className="p-2 rounded-xl hover:bg-white/10 transition-colors flex items-center gap-1"
                             >
@@ -197,30 +221,83 @@ export default function Navbar() {
                                 </div>
                             )}
                         </div>
+
+                        {/* User Menu */}
+                        {isAuthenticated ? (
+                            <div ref={userMenuRef} className="relative">
+                                <button
+                                    onClick={() => {
+                                        setShowUserMenu(!showUserMenu);
+                                        setShowThemes(false);
+                                        setShowNotifications(false);
+                                    }}
+                                    className="flex items-center gap-2 p-2 rounded-xl hover:bg-white/10 transition-colors"
+                                >
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                                    </div>
+                                </button>
+
+                                {showUserMenu && (
+                                    <div className="absolute top-full right-0 mt-2 glass-card p-2 rounded-xl min-w-48 shadow-2xl">
+                                        <div className="px-3 py-2 border-b border-white/10 mb-1">
+                                            <p className="font-medium">{user?.name}</p>
+                                            <p className="text-xs opacity-60">{user?.email}</p>
+                                            {isPaired && partner && (
+                                                <p className="text-xs text-pink-400 mt-1">💕 with {partner.name}</p>
+                                            )}
+                                        </div>
+
+                                        {!isPaired && (
+                                            <Link
+                                                href="/pair"
+                                                onClick={() => setShowUserMenu(false)}
+                                                className="w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:bg-white/10 transition-all"
+                                            >
+                                                <Heart className="w-4 h-4" />
+                                                Connect with Partner
+                                            </Link>
+                                        )}
+
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full flex items-center gap-2 p-2 rounded-lg text-sm hover:bg-white/10 transition-all text-red-400"
+                                        >
+                                            <LogOut className="w-4 h-4" />
+                                            Sign Out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Link href="/login" className="btn-primary px-4 py-2 text-sm">
+                                Sign In
+                            </Link>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button & Notifications & Theme */}
                     <div className="lg:hidden flex items-center gap-1">
-                        {/* Mobile Notification Bell */}
-                        <div className="relative" onClick={(e) => e.stopPropagation()}>
-                            <button
-                                onClick={() => {
-                                    setShowNotifications(!showNotifications);
-                                    setShowThemes(false);
-                                    setIsOpen(false);
-                                }}
-                                className="relative p-2 rounded-xl hover:bg-white/10 transition-colors"
-                            >
-                                <Bell className="w-5 h-5" />
-                                {unreadCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
-                                        {unreadCount > 9 ? '9+' : unreadCount}
-                                    </span>
-                                )}
-                            </button>
-                        </div>
+                        {isAuthenticated && isPaired && (
+                            <div className="relative" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                    onClick={() => {
+                                        setShowNotifications(!showNotifications);
+                                        setShowThemes(false);
+                                        setIsOpen(false);
+                                    }}
+                                    className="relative p-2 rounded-xl hover:bg-white/10 transition-colors"
+                                >
+                                    <Bell className="w-5 h-5" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-pink-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+                        )}
 
-                        {/* Mobile Theme Switcher */}
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -299,25 +376,73 @@ export default function Navbar() {
                 {/* Mobile Menu */}
                 {isOpen && (
                     <div className="lg:hidden pt-4 mt-4 border-t border-white/10">
-                        <div className="grid grid-cols-3 gap-2">
-                            {navLinks.map((link) => {
-                                const isActive = pathname === link.href;
-                                return (
+                        {isAuthenticated ? (
+                            <>
+                                {/* User Info */}
+                                <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-bold shadow-md">
+                                        {user?.name?.charAt(0).toUpperCase() || 'U'}
+                                    </div>
+                                    <div>
+                                        <p className="font-medium">{user?.name}</p>
+                                        {isPaired && partner && (
+                                            <p className="text-xs text-pink-400">💕 with {partner.name}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {isPaired ? (
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {navLinks.map((link) => {
+                                            const isActive = pathname === link.href;
+                                            return (
+                                                <Link
+                                                    key={link.href}
+                                                    href={link.href}
+                                                    onClick={closeMenu}
+                                                    className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl transition-all ${isActive
+                                                        ? 'bg-gradient-to-r from-rose-400/20 to-pink-400/20 text-cozy'
+                                                        : 'hover:bg-white/5 opacity-80'
+                                                        }`}
+                                                >
+                                                    <link.icon className="w-5 h-5" />
+                                                    <span className="text-xs font-medium">{link.label}</span>
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
                                     <Link
-                                        key={link.href}
-                                        href={link.href}
+                                        href="/pair"
                                         onClick={closeMenu}
-                                        className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl transition-all ${isActive
-                                            ? 'bg-gradient-to-r from-rose-400/20 to-pink-400/20 text-cozy'
-                                            : 'hover:bg-white/5 opacity-80'
-                                            }`}
+                                        className="btn-primary w-full py-3 flex items-center justify-center gap-2 mb-3"
                                     >
-                                        <link.icon className="w-5 h-5" />
-                                        <span className="text-xs font-medium">{link.label}</span>
+                                        <Heart className="w-5 h-5" />
+                                        Connect with Partner
                                     </Link>
-                                );
-                            })}
-                        </div>
+                                )}
+
+                                <button
+                                    onClick={() => {
+                                        closeMenu();
+                                        handleLogout();
+                                    }}
+                                    className="w-full mt-3 p-3 rounded-xl text-center text-red-400 hover:bg-red-500/10 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Sign Out
+                                </button>
+                            </>
+                        ) : (
+                            <div className="flex flex-col gap-2">
+                                <Link href="/login" onClick={closeMenu} className="btn-primary py-3 text-center">
+                                    Sign In
+                                </Link>
+                                <Link href="/register" onClick={closeMenu} className="btn-secondary py-3 text-center">
+                                    Create Account
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

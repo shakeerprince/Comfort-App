@@ -89,7 +89,7 @@ export default function ComfortPlaylist({ compact = false }: ComfortPlaylistProp
         return (
             <div ref={containerRef} className="w-full">
                 <div className="flex items-center gap-2 mb-3">
-                    <Music className="w-5 h-5 text-green-400" />
+                    <Music className="w-5 h-5 text-[#BFA054]" />
                     <h3 className="font-semibold">Quick Playlists</h3>
                 </div>
                 <div className="flex gap-2 overflow-x-auto pb-2">
@@ -113,9 +113,9 @@ export default function ComfortPlaylist({ compact = false }: ComfortPlaylistProp
     return (
         <div ref={containerRef} className="w-full space-y-4">
             <div className="flex items-center gap-2 mb-4">
-                <Music className="w-6 h-6 text-green-400" />
+                <Music className="w-6 h-6 text-[#BFA054]" />
                 <h3 className="text-lg font-semibold">Comfort Playlists</h3>
-                <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">Spotify</span>
+                <span className="text-xs bg-[#BFA054]/20 text-[#BFA054] px-2 py-1 rounded-full">Spotify</span>
             </div>
 
             <div className="grid gap-3">
