@@ -1,10 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import NextAuth from 'next-auth';
-import { authConfig } from '@/lib/auth.config';
-
-// Initialize NextAuth with Edge-compatible config for middleware
-const { auth } = NextAuth(authConfig);
+import { getToken } from 'next-auth/jwt';
 
 // Routes that require authentication
 const protectedRoutes = [
@@ -22,52 +18,58 @@ const protectedRoutes = [
 // Routes that are public
 const publicRoutes = ['/login', '/register'];
 
-export default auth(async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    const session = (request as any).auth;
-    const token = session?.user;
+
+    // Explicitly calculate secret to avoid Edge environment issues
+    const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+
+    // Detect if we're in production (Vercel) to check for secure cookies
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieName = isProd ? '__Secure-next-auth.session-token' : 'next-auth.session-token';
+
+    // Use getToken instead of the auth() wrapper for more reliability on Vercel Edge
+    const token = await getToken({
+        req: request,
+        secret: secret,
+        secureCookie: isProd,
+        cookieName: cookieName
+    });
 
     // Check if route needs protection
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
     const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
-    console.log(`[MIDDLEWARE] Path: ${pathname}, Session: ${token ? 'Found' : 'MISSING'}`);
+    console.log(`[MIDDLEWARE] Path: ${pathname}, Token: ${token ? 'Found' : 'MISSING'}`);
 
-    // 1. Redirect unauthenticated users from protected routes
+    // LOGIC:
+    // 1. If trying to access a protected route and not logged in -> Login
     if (isProtectedRoute && !token) {
-        console.log(`[MIDDLEWARE] Unauthenticated -> /login`);
+        console.log(`[MIDDLEWARE] Unauthorized -> Redirect to /login`);
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
     }
 
-    // 2. Redirect logged-in users from public routes (login/register) to Home
+    // 2. If logged in and trying to access /login or /register -> Home
     if (isPublicRoute && token) {
-        console.log(`[MIDDLEWARE] Authenticated -> /`);
+        console.log(`[MIDDLEWARE] Already Logged In -> Redirect to /`);
         return NextResponse.redirect(new URL('/', request.url));
     }
 
     // 3. Multi-tenant Pairing Check:
     // If authenticated but NO coupleId, and trying to access couple features, redirect to /pair
     // (Allow /pair and /profile as they are for setup)
-    if (token && isProtectedRoute && !(token as any).coupleId && !['/pair', '/profile'].some(p => pathname.startsWith(p))) {
-        console.log(`[MIDDLEWARE] Unpaired -> /pair`);
+    if (token && isProtectedRoute && !token.coupleId && !['/pair', '/profile'].some(p => pathname.startsWith(p))) {
+        console.log(`[MIDDLEWARE] Unpaired -> Redirect to /pair`);
         return NextResponse.redirect(new URL('/pair', request.url));
     }
 
     return NextResponse.next();
-});
+}
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public folder
-         * - api routes (handled separately)
-         */
         '/((?!_next/static|_next/image|favicon.ico|api|.*\\..*|_next).*)',
     ],
 };

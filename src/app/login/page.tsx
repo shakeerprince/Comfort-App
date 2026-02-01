@@ -23,8 +23,9 @@ export default function LoginPage() {
         const result = await login(email, password);
 
         if (result.success) {
-            router.push('/');
-            router.refresh();
+            // Use window.location.href instead of router.push for production stability
+            // This forces a full page reload and cookie handshake
+            window.location.href = '/';
         } else {
             setError(result.error || 'Login failed');
         }
