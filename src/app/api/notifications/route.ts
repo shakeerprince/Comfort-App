@@ -1,15 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import webpush from 'web-push';
-import { sql, initDatabase, generateId, getCoupleByUserId, getPartnerInfo, getCustomLoveMessages, getPushSubscriptionsByUserId } from '@/lib/db';
+import { sql, initDatabase, generateId, getCoupleByUserId, getPartnerInfo, getCustomLoveMessages, fetchPushSubs } from '@/lib/db';
 
-// Configure VAPID keys
-if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-    webpush.setVapidDetails(
-        'mailto:support@comfortapp.example.com',
-        process.env.VAPID_PUBLIC_KEY,
-        process.env.VAPID_PRIVATE_KEY
-    );
+// Force dynamic to prevent static optimization during build
+export const dynamic = 'force-dynamic';
+
+// Configure VAPID keys safely
+try {
+    if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+        webpush.setVapidDetails(
+            'mailto:support@comfortapp.example.com',
+            process.env.VAPID_PUBLIC_KEY,
+            process.env.VAPID_PRIVATE_KEY
+        );
+    }
+} catch (error) {
+    console.warn('Failed to configure VAPID details:', error);
 }
 
 // Default love message templates (use {partnerName} and {myName} as placeholders)
@@ -156,7 +163,7 @@ export async function POST(request: NextRequest) {
 
         // Send Push Notifications
         try {
-            const subscriptions = await getPushSubscriptionsByUserId(partner.id);
+            const subscriptions = await fetchPushSubs(partner.id);
             const pushData = JSON.stringify({
                 title: 'Comfort App 💕',
                 body: message,
