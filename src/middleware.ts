@@ -31,13 +31,17 @@ export async function middleware(request: NextRequest) {
         secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
     });
 
+    console.log(`[MIDDLEWARE] Path: ${pathname}, Token: ${token ? 'Found' : 'MISSING'}`);
+
     // Redirect logged-in users away from login/register pages
     if (isPublicRoute && token) {
+        console.log(`[MIDDLEWARE] Redirecting logged-in user away from public route: ${pathname}`);
         return NextResponse.redirect(new URL('/', request.url));
     }
 
     // Redirect unauthenticated users to login
     if (isProtectedRoute && !token) {
+        console.log(`[MIDDLEWARE] Redirecting unauthenticated user from protected route: ${pathname}`);
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
@@ -47,6 +51,7 @@ export async function middleware(request: NextRequest) {
     // and trying to access couple-specific features, redirect to /pair
     // (Except for /pair and /profile which are used for setup)
     if (token && isProtectedRoute && !token.coupleId && !['/pair', '/profile'].some(p => pathname.startsWith(p))) {
+        console.log(`[MIDDLEWARE] User is authenticated but not paired. Redirecting to /pair`);
         return NextResponse.redirect(new URL('/pair', request.url));
     }
 
