@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { auth } from '@/lib/auth';
+import NextAuth from 'next-auth';
+import { authConfig } from '@/lib/auth.config';
+
+// Initialize NextAuth with Edge-compatible config for middleware
+const { auth } = NextAuth(authConfig);
 
 // Routes that require authentication
 const protectedRoutes = [
@@ -29,25 +33,25 @@ export default auth(async function middleware(request: NextRequest) {
 
     console.log(`[MIDDLEWARE] Path: ${pathname}, Session: ${token ? 'Found' : 'MISSING'}`);
 
-    // Redirect logged-in users away from login/register pages
-    if (isPublicRoute && token) {
-        console.log(`[MIDDLEWARE] Redirecting logged-in user away from public route: ${pathname}`);
-        return NextResponse.redirect(new URL('/', request.url));
-    }
-
-    // Redirect unauthenticated users to login
+    // 1. Redirect unauthenticated users from protected routes
     if (isProtectedRoute && !token) {
-        console.log(`[MIDDLEWARE] Redirecting unauthenticated user from protected route: ${pathname}`);
+        console.log(`[MIDDLEWARE] Unauthenticated -> /login`);
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
     }
 
-    // Harden multi-tenant check: If user is authenticated but not paired, 
-    // and trying to access couple-specific features, redirect to /pair
-    // (Except for /pair and /profile which are used for setup)
+    // 2. Redirect logged-in users from public routes (login/register) to Home
+    if (isPublicRoute && token) {
+        console.log(`[MIDDLEWARE] Authenticated -> /`);
+        return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    // 3. Multi-tenant Pairing Check:
+    // If authenticated but NO coupleId, and trying to access couple features, redirect to /pair
+    // (Allow /pair and /profile as they are for setup)
     if (token && isProtectedRoute && !(token as any).coupleId && !['/pair', '/profile'].some(p => pathname.startsWith(p))) {
-        console.log(`[MIDDLEWARE] User is authenticated but not paired. Redirecting to /pair`);
+        console.log(`[MIDDLEWARE] Unpaired -> /pair`);
         return NextResponse.redirect(new URL('/pair', request.url));
     }
 
