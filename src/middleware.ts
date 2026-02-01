@@ -43,6 +43,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
+    // Harden multi-tenant check: If user is authenticated but not paired, 
+    // and trying to access couple-specific features, redirect to /pair
+    // (Except for /pair and /profile which are used for setup)
+    if (token && isProtectedRoute && !token.coupleId && !['/pair', '/profile'].some(p => pathname.startsWith(p))) {
+        return NextResponse.redirect(new URL('/pair', request.url));
+    }
+
     return NextResponse.next();
 }
 

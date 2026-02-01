@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { sql, initDatabase, generateId, getCoupleByUserId, getPartnerInfo, getCustomLoveMessages } from '@/lib/db';
+import webpush from 'web-push';
+import { sql, initDatabase, generateId, getCoupleByUserId, getPartnerInfo, getCustomLoveMessages, getPushSubscriptionsByUserId } from '@/lib/db';
+
+// Configure VAPID keys
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+        'mailto:support@comfortapp.example.com',
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+    );
+}
 
 // Default love message templates (use {partnerName} and {myName} as placeholders)
 const defaultLoveMessageTemplates = [
@@ -143,6 +153,32 @@ export async function POST(request: NextRequest) {
             INSERT INTO notifications (id, couple_id, from_user_id, from_user, to_user_id, to_user, type, message, timestamp, read)
             VALUES (${id}, ${couple.id}, ${session.user.id}, ${myName}, ${partner.id}, ${partner.name}, ${type}, ${message}, ${timestamp}, false)
         `;
+
+        // Send Push Notifications
+        try {
+            const subscriptions = await getPushSubscriptionsByUserId(partner.id);
+            const pushData = JSON.stringify({
+                title: 'Comfort App 💕',
+                body: message,
+                icon: '/icons/icon-192x192.png',
+                data: {
+                    url: '/comfort',
+                    type: type
+                }
+            });
+
+            const sendPromises = subscriptions.map(sub =>
+                webpush.sendNotification(sub.subscription as any, pushData)
+                    .catch((err: any) => {
+                        console.error('[PUSH_SEND_ERROR]', err);
+                    })
+            );
+
+            await Promise.all(sendPromises);
+        } catch (pushError) {
+            console.error('[PUSH_ERROR]', pushError);
+            // Don't fail the request if push fails
+        }
 
         return NextResponse.json({ success: true, message });
     } catch (error) {

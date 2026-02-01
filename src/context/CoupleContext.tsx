@@ -405,8 +405,10 @@ export const CoupleProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         const pollServer = async () => {
-            if (isSendingRef.current) {
-                pollTimeoutRef.current = setTimeout(pollServer, POLL_INTERVAL);
+            // Stop polling if user tab is hidden or sending
+            if (document.visibilityState === 'hidden' || isSendingRef.current) {
+                // If hidden, chill out but still check occasionally (e.g. 30s)
+                pollTimeoutRef.current = setTimeout(pollServer, document.visibilityState === 'hidden' ? 30000 : POLL_INTERVAL);
                 return;
             }
 

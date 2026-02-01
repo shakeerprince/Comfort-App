@@ -19,6 +19,7 @@ interface NotificationContextType {
     unreadCount: number;
     markAsRead: (id: string) => void;
     clearAll: () => void;
+    subscribeToPush: () => Promise<void>;
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null);
@@ -55,13 +56,20 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         if (typeof window !== 'undefined' && 'Notification' in window) {
             if (Notification.permission === 'granted') {
                 setPermissionGranted(true);
+                // Attempt to auto-subscribe if already granted
+                if (isAuthenticated) {
+                    subscribeToPush();
+                }
             } else if (Notification.permission !== 'denied') {
                 Notification.requestPermission().then(permission => {
                     setPermissionGranted(permission === 'granted');
+                    if (permission === 'granted' && isAuthenticated) {
+                        subscribeToPush();
+                    }
                 });
             }
         }
-    }, []);
+    }, [isAuthenticated]);
 
     // Play custom notification sound using Web Audio API
     const playNotificationSound = useCallback(() => {
@@ -149,6 +157,37 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         return () => clearInterval(interval);
     }, [isAuthenticated, isPaired, notifications, showBrowserNotification]);
 
+    const subscribeToPush = useCallback(async () => {
+        if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !isAuthenticated) return;
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+
+            // Get public VAPID key from API or env (passed via public runtime config or defined here)
+            // For simplicity, we'll try to fetch it or use a default if provided
+            const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+            if (!vapidPublicKey) {
+                console.warn('VAPID Public Key not found. Push notifications will not work.');
+                return;
+            }
+
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: vapidPublicKey
+            });
+
+            await fetch('/api/notifications/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'subscribe', subscription })
+            });
+
+            console.log('[PUSH] Subscribed successfully');
+        } catch (error) {
+            console.error('[PUSH] Subscription failed:', error);
+        }
+    }, [isAuthenticated]);
+
     // Periodic love reminders (every 2 hours)
     useEffect(() => {
         if (!isAuthenticated || !isPaired) return;
@@ -210,6 +249,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             unreadCount,
             markAsRead,
             clearAll,
+            subscribeToPush,
         }}>
             {children}
         </NotificationContext.Provider>

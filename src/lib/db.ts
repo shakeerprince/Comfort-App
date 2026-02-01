@@ -128,6 +128,16 @@ export async function initDatabase() {
     await sql`CREATE INDEX IF NOT EXISTS idx_user_status_couple_id ON user_status(couple_id)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_couples_invite_code ON couples(invite_code)`;
     await sql`CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)`;
+
+    // Push Subscriptions table
+    await sql`
+        CREATE TABLE IF NOT EXISTS push_subscriptions (
+            id TEXT PRIMARY KEY,
+            user_id TEXT REFERENCES users(id) ON DELETE CASCADE,
+            subscription JSONB NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    `;
 }
 
 // ============================================
@@ -253,6 +263,40 @@ export async function deleteCustomLoveMessage(id: string, coupleId: string) {
     await sql`
         DELETE FROM custom_love_messages
         WHERE id = ${id} AND couple_id = ${coupleId}
+    `;
+    return true;
+}
+
+// ============================================
+// Push Subscriptions
+// ============================================
+
+export async function getPushSubscriptionsByUserId(userId: string) {
+    if (!sql) return [];
+    return await sql`
+        SELECT subscription
+        FROM push_subscriptions
+        WHERE user_id = ${userId}
+    `;
+}
+
+export async function savePushSubscription(userId: string, subscription: any) {
+    if (!sql) return null;
+    const id = generateId();
+    const result = await sql`
+        INSERT INTO push_subscriptions (id, user_id, subscription)
+        VALUES (${id}, ${userId}, ${JSON.stringify(subscription)})
+        ON CONFLICT (id) DO UPDATE SET subscription = ${JSON.stringify(subscription)}
+        RETURNING *
+    `;
+    return result[0] || null;
+}
+
+export async function deletePushSubscription(userId: string, endpoint: string) {
+    if (!sql) return false;
+    await sql`
+        DELETE FROM push_subscriptions
+        WHERE user_id = ${userId} AND subscription->>'endpoint' = ${endpoint}
     `;
     return true;
 }
