@@ -21,15 +21,25 @@ const publicRoutes = ['/login', '/register'];
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
-    // Explicitly calculate secret to avoid Edge environment issues
-    const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+    // DEBUG: Log all cookies to debug production auth loop
+    const allCookies = request.cookies.getAll();
+    console.log('[MIDDLEWARE DEBUG] Cookies received:', allCookies.map(c => c.name));
+    console.log('[MIDDLEWARE DEBUG] Env Secret Exists:', !!secret);
 
-    // Use getToken with default settings. It automatically handles secure/non-secure cookies
-    // and looks for AUTH_SECRET/NEXTAUTH_SECRET.
+    // Explicitly check for session token cookie
+    const tokenCookie = allCookies.find(c => c.name.includes('session-token'));
+    if (tokenCookie) {
+        console.log('[MIDDLEWARE DEBUG] Found potential session cookie:', tokenCookie.name);
+    } else {
+        console.log('[MIDDLEWARE DEBUG] NO SESSION COOKIE FOUND!');
+    }
+
+    // Use getToken with default settings
     const token = await getToken({
         req: request,
         secret: secret,
     });
+    console.log('[MIDDLEWARE DEBUG] getToken result:', token ? 'SUCCESS' : 'NULL');
 
     // Check if route needs protection
     const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
