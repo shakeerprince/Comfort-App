@@ -21,6 +21,9 @@ const publicRoutes = ['/login', '/register'];
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
+    // Explicitly calculate secret to avoid Edge environment issues
+    const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+
     // DEBUG: Log all cookies to debug production auth loop
     const allCookies = request.cookies.getAll();
     console.log('[MIDDLEWARE DEBUG] Cookies received:', allCookies.map(c => c.name));
@@ -63,21 +66,6 @@ export async function middleware(request: NextRequest) {
     }
 
     return NextResponse.next();
-}
-
-export const config = {
-    matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|api|.*\\..*|_next).*)',
-    ],
-};
-// If authenticated but NO coupleId, and trying to access couple features, redirect to /pair
-// (Allow /pair and /profile as they are for setup)
-if (token && isProtectedRoute && !token.coupleId && !['/pair', '/profile'].some(p => pathname.startsWith(p))) {
-    console.log(`[MIDDLEWARE] Unpaired -> Redirect to /pair`);
-    return NextResponse.redirect(new URL('/pair', request.url));
-}
-
-return NextResponse.next();
 }
 
 export const config = {
