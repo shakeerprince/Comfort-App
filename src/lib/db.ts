@@ -271,7 +271,7 @@ export async function deleteCustomLoveMessage(id: string, coupleId: string) {
 // Push Subscriptions
 // ============================================
 
-export async function getPushSubscriptionsByUserId(userId: string) {
+export async function fetchPushSubs(userId: string) {
     if (!sql) return [];
     return await sql`
         SELECT subscription

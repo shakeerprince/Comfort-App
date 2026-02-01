@@ -24,16 +24,11 @@ export async function middleware(request: NextRequest) {
     // Explicitly calculate secret to avoid Edge environment issues
     const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
 
-    // Detect if we're in production (Vercel) to check for secure cookies
-    const isProd = process.env.NODE_ENV === 'production';
-    const cookieName = isProd ? '__Secure-next-auth.session-token' : 'next-auth.session-token';
-
-    // Use getToken instead of the auth() wrapper for more reliability on Vercel Edge
+    // Use getToken with default settings. It automatically handles secure/non-secure cookies
+    // and looks for AUTH_SECRET/NEXTAUTH_SECRET.
     const token = await getToken({
         req: request,
         secret: secret,
-        secureCookie: isProd,
-        cookieName: cookieName
     });
 
     // Check if route needs protection
